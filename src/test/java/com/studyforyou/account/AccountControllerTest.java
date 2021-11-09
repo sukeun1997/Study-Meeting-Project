@@ -12,14 +12,15 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest
@@ -78,6 +79,44 @@ class AccountControllerTest {
 
         assertTrue(accountRepository.existsByEmail("email@eamil.com"));
         then(javaMailSender).should().send(any(SimpleMailMessage.class));
+
+    }
+
+    @Test
+    @DisplayName("이메일 인증 - 잘못된 입력")
+    void input_wrong_email() throws Exception {
+
+        mockMvc.perform(get("/check-email-token")
+                        .queryParam("token", "asdasd")
+                        .queryParam("email", "asdasd"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(view().name("account/checked-email"));
+
+
+
+    }
+
+    @Test
+    @DisplayName("이메일 인증 - 옳바른 입력")
+    void input_true_email() throws Exception {
+
+        Account account = Account.builder()
+                .email("email@eamil.coms")
+                .nickname("asds")
+                .emailCheckToken(UUID.randomUUID().toString())
+                .build();
+
+        accountRepository.save(account);
+
+        mockMvc.perform(get("/check-email-token")
+                        .queryParam("token", account.getEmailCheckToken())
+                        .queryParam("email", account.getEmail()))
+                .andExpect(model().attributeExists("nickname"))
+                .andExpect(model().attributeExists("numberOfUser"))
+                .andExpect(model().attributeDoesNotExist("error"))
+                .andExpect(view().name("account/checked-email"));
+
+
 
     }
 }
