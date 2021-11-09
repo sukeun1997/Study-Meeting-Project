@@ -17,7 +17,10 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -55,7 +58,8 @@ class AccountControllerTest {
                         .param("password", "12345")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("account/sign-up"));
+                .andExpect(view().name("account/sign-up"))
+                .andExpect(unauthenticated());
 
     }
 
@@ -69,6 +73,7 @@ class AccountControllerTest {
                         .param("password", "123456789")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
+                .andExpect(authenticated())
                 .andExpect(view().name("redirect:/"));
 
         Account account = accountRepository.findByEmail("email@eamil.com");
@@ -90,6 +95,7 @@ class AccountControllerTest {
                         .queryParam("token", "asdasd")
                         .queryParam("email", "asdasd"))
                 .andExpect(model().attributeExists("error"))
+                .andExpect(unauthenticated())
                 .andExpect(view().name("account/checked-email"));
 
 
@@ -114,7 +120,8 @@ class AccountControllerTest {
                 .andExpect(model().attributeExists("nickname"))
                 .andExpect(model().attributeExists("numberOfUser"))
                 .andExpect(model().attributeDoesNotExist("error"))
-                .andExpect(view().name("account/checked-email"));
+                .andExpect(view().name("account/checked-email"))
+                .andExpect(authenticated());
 
 
 
