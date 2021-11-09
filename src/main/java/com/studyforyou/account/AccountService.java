@@ -20,7 +20,6 @@ public class AccountService {
 
     public void processNewAccount(SignUpForm signUpForm) {
         Account newAccount = savedNewAccount(signUpForm);
-        newAccount.generateEmailCheckToken();
         sendSignUpConfirmEmail(newAccount);
     }
 
@@ -33,7 +32,7 @@ public class AccountService {
                 .studyEnrollmentResultByWeb(true)
                 .studyUpdatedByWeb(true)
                 .build();
-
+        account.generateEmailCheckToken();
         Account newAccount = accountRepository.save(account);
         return newAccount;
     }
