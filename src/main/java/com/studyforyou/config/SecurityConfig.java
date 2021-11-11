@@ -14,6 +14,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+        http.formLogin().loginPage("/account/login")
+                .defaultSuccessUrl("/").permitAll();
+
+        http.logout().logoutSuccessUrl("/");
+
+
         http.authorizeRequests()
                 .mvcMatchers("/", "/login", "/sign-up",
                         "member/new", "/check-email-token", "/check-email-login", "/login-link")

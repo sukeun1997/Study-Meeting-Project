@@ -5,6 +5,7 @@ import com.studyforyou.domain.Account;
 import com.studyforyou.dto.SignUpForm;
 import com.studyforyou.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import org.dom4j.rule.Mode;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -93,5 +94,10 @@ public class AccountController {
 
         accountService.sendSignUpConfirmEmail(account);
         return "redirect:/";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "account/login";
     }
 }
