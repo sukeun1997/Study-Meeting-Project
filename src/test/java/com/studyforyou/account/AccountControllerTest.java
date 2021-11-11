@@ -1,7 +1,10 @@
 package com.studyforyou.account;
 
 import com.studyforyou.domain.Account;
+import com.studyforyou.dto.SignUpForm;
 import com.studyforyou.repository.AccountRepository;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
@@ -17,7 +21,6 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -38,9 +41,17 @@ class AccountControllerTest {
     private AccountRepository accountRepository;
 
 
+    @Autowired
+    private AccountService accountService;
+
     @MockBean
     JavaMailSender javaMailSender;
 
+
+    @AfterEach
+    void afterEach() {
+        accountRepository.deleteAll();
+    }
     @Test
     @DisplayName("회원 가입 화면 테스트")
     void signUpForm() throws Exception {
@@ -106,24 +117,83 @@ class AccountControllerTest {
     @DisplayName("이메일 인증 - 옳바른 입력")
     void input_true_email() throws Exception {
 
-        Account account = Account.builder()
-                .email("email@eamil.coms")
-                .nickname("asds")
-                .emailCheckToken(UUID.randomUUID().toString())
-                .build();
-
-        accountRepository.save(account);
+        createAccount();
+        Account account = accountRepository.findByEmail("email@email.com");
 
         mockMvc.perform(get("/check-email-token")
-                        .queryParam("token", account.getEmailCheckToken())
-                        .queryParam("email", account.getEmail()))
+                        .param("token", account.getEmailCheckToken())
+                        .param("email", account.getEmail()))
                 .andExpect(model().attributeExists("nickname"))
                 .andExpect(model().attributeExists("numberOfUser"))
                 .andExpect(model().attributeDoesNotExist("error"))
                 .andExpect(view().name("account/checked-email"))
                 .andExpect(authenticated());
 
+    }
 
 
+    public void createAccount() throws Exception {
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setEmail("email@email.com");
+        signUpForm.setPassword("12345678");
+        signUpForm.setNickname("sukeun");
+        accountService.processNewAccount(signUpForm);
+    }
+
+    @Test
+    @DisplayName("이메일 로그인 성공 테스트")
+    void login_success_test_email() throws Exception {
+       createAccount();
+
+
+        mockMvc.perform(post("/login")
+                        .param("username", "email@email.com")
+                        .param("password", "12345678")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(authenticated().withAuthenticationName("sukeun"))
+                .andExpect(redirectedUrl("/"));
+    }
+
+    @Test
+    @DisplayName("닉네임 로그인 성공 테스트")
+    void login_success_test_nickname() throws Exception {
+        createAccount();
+
+
+        mockMvc.perform(post("/login")
+                        .param("username", "sukeun")
+                        .param("password", "12345678")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(authenticated().withAuthenticationName("sukeun"))
+                .andExpect(redirectedUrl("/"));
+    }
+
+    @Test
+    @DisplayName("로그인 실패 테스트")
+    void login_fail_test_nickname() throws Exception {
+        createAccount();
+
+
+        mockMvc.perform(post("/login")
+                        .param("username", "11111")
+                        .param("password", "12345678")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(unauthenticated())
+                .andExpect(redirectedUrl("/login?error"));
+    }
+
+    @Test
+    @DisplayName("로그아웃 테스트")
+    @WithMockUser(username = "sukeun")
+    void logout_test() throws Exception {
+
+        mockMvc.perform(post("/logout")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(unauthenticated())
+                .andExpect(redirectedUrl("/"));
     }
 }
