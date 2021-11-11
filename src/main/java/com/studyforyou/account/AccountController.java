@@ -59,7 +59,7 @@ public class AccountController {
             return view;
         }
 
-        if(!account.isValidToken(token, account)){
+        if (!account.isValidToken(token, account)) {
             model.addAttribute("error", "wrong-token");
             return view;
         }
@@ -72,5 +72,26 @@ public class AccountController {
         return view;
 
 
+    }
+
+    @GetMapping("/check-email")
+    public String checkEmail(@CurrentUser Account account, Model model) {
+
+        model.addAttribute("email", account.getEmail());
+        return "account/check-email";
+    }
+
+    @GetMapping("/resend-confirm-email")
+    public String resendEmail(@CurrentUser Account account, Model model) {
+
+
+        if (!account.canResendEmail()) {
+            model.addAttribute("error", "이메일을 보내고 1시간 뒤에 다시 보낼 수 있습니다.");
+            model.addAttribute("email", account.getEmail());
+            return "account/check-email";
+        }
+
+        accountService.sendSignUpConfirmEmail(account);
+        return "redirect:/";
     }
 }

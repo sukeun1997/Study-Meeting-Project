@@ -27,6 +27,8 @@ public class Account {
 
     private String emailCheckToken;
 
+    private LocalDateTime emailCheckTokenGeneratedAt;
+
     private LocalDateTime joinedAt;
 
     private String bio; // 소개
@@ -54,6 +56,7 @@ public class Account {
 
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
+        this.emailCheckTokenGeneratedAt = LocalDateTime.now();
     }
 
     public void completeSignUp() {
@@ -63,6 +66,9 @@ public class Account {
 
     public boolean isValidToken(String token, Account account) {
        return account.getEmailCheckToken().equals(token);
+    }
 
+    public boolean canResendEmail() {
+        return this.getEmailCheckTokenGeneratedAt().isBefore(LocalDateTime.now().minusHours(1));
     }
 }

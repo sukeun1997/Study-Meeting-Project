@@ -19,6 +19,9 @@
 </head>
 
 <nav th:fragment="main-nav" class="navbar navbar-expand-sm navbar-dark bg-dark">
+  <a class="navbar-brand" href="/" th:href="@{/}">
+    <img src="/images/logo_sm.png" width="30" height="30">
+  </a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -74,8 +77,31 @@
 
 <footer th:fragment="footer">
   <div class="row justify-content-center">
+    <img class="mb-2" src="/images/logo_long_kr.jpg" alt="" width="100">
     <small class="d-block mb-3 text-muted">&copy; 2020</small>
   </div>
 </footer>
+
+<script type="application/javascript" th:fragment="form-validation">
+  (function () {
+    'use strict';
+
+    window.addEventListener('load', function () {
+      // Fetch all the forms we want to apply custom Bootstrap validation styles to
+      var forms = document.getElementsByClassName('needs-validation');
+
+      // Loop over them and prevent submission
+      Array.prototype.filter.call(forms, function (form) {
+        form.addEventListener('submit', function (event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+    }, false)
+  }())
+</script>
 
 </html>
