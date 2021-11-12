@@ -15,17 +15,20 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
     private final JavaMailSender javaMailSender;
 
     private final PasswordEncoder passwordEncoder;
+
 
     public Account processNewAccount(SignUpForm signUpForm) {
         Account newAccount = savedNewAccount(signUpForm);
@@ -43,8 +46,7 @@ public class AccountService implements UserDetailsService {
                 .studyUpdatedByWeb(true)
                 .build();
         account.generateEmailCheckToken();
-        Account newAccount = accountRepository.save(account);
-        return newAccount;
+        return accountRepository.save(account);
     }
 
     public void sendSignUpConfirmEmail(Account newAccount) {
@@ -66,7 +68,13 @@ public class AccountService implements UserDetailsService {
 
     }
 
+    public void completeCheckEmail(Account account) {
+        account.completeSignUp();
+        login(account);
+    }
+
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String emailOrNickName) throws UsernameNotFoundException {
 
         Account account = accountRepository.findByEmail(emailOrNickName);
@@ -74,10 +82,11 @@ public class AccountService implements UserDetailsService {
         if (account == null) {
             account = accountRepository.findByNickname(emailOrNickName);
         }
+
         if (account == null) {
             throw new UsernameNotFoundException(emailOrNickName);
         }
+
         return new UserAccount(account);
     }
-
 }
