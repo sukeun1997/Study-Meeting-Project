@@ -1,6 +1,9 @@
 package com.studyforyou.domain;
 
+import com.studyforyou.settings.Profile;
 import lombok.*;
+import org.modelmapper.ModelMapper;
+import org.springframework.ui.ModelMap;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -70,5 +73,13 @@ public class Account {
 
     public boolean canResendEmail() {
         return this.getEmailCheckTokenGeneratedAt().isBefore(LocalDateTime.now().minusHours(1));
+    }
+
+
+    public void profileUpdate(Profile profile) {
+        this.bio = profile.getBio();
+        this.occupation = profile.getOccupation();
+        this.url = profile.getUrl();
+        this.location = profile.getLocation();
     }
 }

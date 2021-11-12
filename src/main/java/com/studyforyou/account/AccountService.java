@@ -3,6 +3,7 @@ package com.studyforyou.account;
 import com.studyforyou.domain.Account;
 import com.studyforyou.dto.SignUpForm;
 import com.studyforyou.repository.AccountRepository;
+import com.studyforyou.settings.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -71,6 +72,11 @@ public class AccountService implements UserDetailsService {
     public void completeCheckEmail(Account account) {
         account.completeSignUp();
         login(account);
+    }
+
+    public void completeProfileUpdate(Account account, Profile profile) {
+        account.profileUpdate(profile);
+        accountRepository.save(account);
     }
 
     @Override
