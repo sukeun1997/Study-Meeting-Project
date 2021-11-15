@@ -21,8 +21,10 @@ public class Profile {
 
     private String occupation;
 
-
     private String location;
+
+
+    private String profileImage;
 
 
     private static ModelMapper modelMapper = new ModelMapper();
