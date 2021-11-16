@@ -1,6 +1,7 @@
 package com.studyforyou.account;
 
 import com.studyforyou.domain.Account;
+import com.studyforyou.dto.PasswordForm;
 import com.studyforyou.dto.SignUpForm;
 import com.studyforyou.repository.AccountRepository;
 import com.studyforyou.settings.Profile;
@@ -94,5 +95,12 @@ public class AccountService implements UserDetailsService {
         }
 
         return new UserAccount(account);
+    }
+
+    public void updatePassword(PasswordForm passwordForm, Account account) {
+
+        String password = passwordEncoder.encode(passwordForm.getNewPasswordConfirm());
+        account.setPassword(password);
+        accountRepository.save(account);
     }
 }
