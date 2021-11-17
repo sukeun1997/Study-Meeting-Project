@@ -4,6 +4,7 @@ import com.studyforyou.domain.Account;
 import com.studyforyou.dto.PasswordForm;
 import com.studyforyou.dto.SignUpForm;
 import com.studyforyou.repository.AccountRepository;
+import com.studyforyou.settings.Notifications;
 import com.studyforyou.settings.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -101,6 +102,11 @@ public class AccountService implements UserDetailsService {
 
         String password = passwordEncoder.encode(passwordForm.getNewPasswordConfirm());
         account.setPassword(password);
+        accountRepository.save(account);
+    }
+
+    public void updateNotifications(Account account, Notifications notifications) {
+        account.notificationsUpdate(notifications);
         accountRepository.save(account);
     }
 }

@@ -1,5 +1,6 @@
 package com.studyforyou.domain;
 
+import com.studyforyou.settings.Notifications;
 import com.studyforyou.settings.Profile;
 import lombok.*;
 import org.modelmapper.ModelMapper;
@@ -82,5 +83,14 @@ public class Account {
         this.url = profile.getUrl();
         this.location = profile.getLocation();
         this.profileImage = profile.getProfileImage();
+    }
+
+    public void notificationsUpdate(Notifications notifications) {
+        this.studyCreatedByEmail = notifications.isStudyCreatedByEmail();
+        this.studyCreatedByWeb = notifications.isStudyCreatedByWeb();
+        this.studyEnrollmentResultByEmail = notifications.isStudyEnrollmentResultByEmail();
+        this.studyEnrollmentResultByWeb = notifications.isStudyEnrollmentResultByWeb();
+        this.studyUpdatedByEmail = notifications.isStudyUpdatedByEmail();
+        this.studyUpdatedByWeb = notifications.isStudyUpdatedByWeb();
     }
 }

@@ -23,6 +23,7 @@ public class SettingsController {
 
     public static final String SETTINGS_PROFILE = "settings/profile";
     public static final String SETTINGS_PASSWORD = "settings/password";
+    public static final String SETTINGS_NOTIFICATIONS = "settings/notifications";
     private final AccountService accountService;
 
     @InitBinder("passwordForm")
@@ -62,7 +63,7 @@ public class SettingsController {
 
     @PostMapping("/settings/password")
     public String passwordUpdate(@Valid PasswordForm passwordForm, BindingResult bindingResult,
-                                 Model model ,@CurrentUser Account account, RedirectAttributes redirectAttributes) {
+                                 Model model, @CurrentUser Account account, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(account);
@@ -70,8 +71,26 @@ public class SettingsController {
         }
         accountService.updatePassword(passwordForm, account);
 
-        model.addAttribute(account);
         redirectAttributes.addFlashAttribute("message", "패스워드 변경이 완료 되었습니다.");
-        return "redirect:/"+SETTINGS_PASSWORD;
+        return "redirect:/" + SETTINGS_PASSWORD;
+    }
+
+
+    @GetMapping("/settings/notifications")
+    public String notificationsSetting(@CurrentUser Account account, Model model) {
+
+        model.addAttribute(account);
+        model.addAttribute(Notifications.createNotifications(account));
+        return SETTINGS_NOTIFICATIONS;
+    }
+
+    @PostMapping("/settings/notifications")
+    public String notificationsSetting(@CurrentUser Account account, Model model, Notifications notifications, RedirectAttributes redirectAttributes) {
+
+        accountService.updateNotifications(account,notifications);
+
+        redirectAttributes.addFlashAttribute("message", "알림설정 변경 완료");
+        return "redirect:/"+SETTINGS_NOTIFICATIONS;
+
     }
 }
