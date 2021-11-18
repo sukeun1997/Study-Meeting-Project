@@ -4,6 +4,7 @@ import com.studyforyou.domain.Account;
 import com.studyforyou.dto.PasswordForm;
 import com.studyforyou.dto.SignUpForm;
 import com.studyforyou.repository.AccountRepository;
+import com.studyforyou.settings.NicknameForm;
 import com.studyforyou.settings.Notifications;
 import com.studyforyou.settings.Profile;
 import lombok.RequiredArgsConstructor;
@@ -107,6 +108,11 @@ public class AccountService implements UserDetailsService {
 
     public void updateNotifications(Account account, Notifications notifications) {
         account.notificationsUpdate(notifications);
+        accountRepository.save(account);
+    }
+
+    public void updateNickName(Account account, NicknameForm nickNameForm) {
+        account.setNickname(nickNameForm.getNickname());
         accountRepository.save(account);
     }
 }

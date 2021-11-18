@@ -2,13 +2,14 @@ package com.studyforyou.settings;
 
 import com.studyforyou.account.AccountService;
 import com.studyforyou.account.CurrentUser;
+import com.studyforyou.account.SignUpFormValidator;
 import com.studyforyou.domain.Account;
 import com.studyforyou.dto.PasswordForm;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -24,11 +25,20 @@ public class SettingsController {
     public static final String SETTINGS_PROFILE = "settings/profile";
     public static final String SETTINGS_PASSWORD = "settings/password";
     public static final String SETTINGS_NOTIFICATIONS = "settings/notifications";
+    public static final String SETTINGS_ACCOUNT = "settings/account";
     private final AccountService accountService;
+    private final NicknameValidator nicknameValidator;
+    private final PasswordFormValidator passwordFormValidator;
+    private static final ModelMapper modelMapper = new ModelMapper();
 
     @InitBinder("passwordForm")
     public void initBinder(WebDataBinder webDataBinder) {
-        webDataBinder.addValidators(new PasswordFormValidator());
+        webDataBinder.addValidators(passwordFormValidator);
+    }
+
+    @InitBinder("nicknameForm")
+    public void initBinderNickName(WebDataBinder webDataBinder) {
+        webDataBinder.addValidators(nicknameValidator);
     }
 
     @GetMapping("/settings/profile")
@@ -85,12 +95,37 @@ public class SettingsController {
     }
 
     @PostMapping("/settings/notifications")
-    public String notificationsSetting(@CurrentUser Account account, Model model, Notifications notifications, RedirectAttributes redirectAttributes) {
+    public String notificationsSetting(@CurrentUser Account account, @Valid Notifications notifications, Model model, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
-        accountService.updateNotifications(account,notifications);
+        if (bindingResult.hasErrors()) {
+            model.addAttribute(account);
+            return SETTINGS_NOTIFICATIONS;
+        }
+        accountService.updateNotifications(account, notifications);
 
         redirectAttributes.addFlashAttribute("message", "알림설정 변경 완료");
-        return "redirect:/"+SETTINGS_NOTIFICATIONS;
+        return "redirect:/" + SETTINGS_NOTIFICATIONS;
 
+    }
+
+    @GetMapping("/settings/account")
+    public String nickNameUpdate(Model model, @CurrentUser Account account) {
+        model.addAttribute(account);
+        model.addAttribute(modelMapper.map(account, NicknameForm.class));
+        return SETTINGS_ACCOUNT;
+    }
+
+    @PostMapping("/settings/account")
+    public String nickNameUpdate(@Valid NicknameForm nicknameForm, BindingResult bindingResult, Model model, @CurrentUser Account account,
+                                 RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute(account);
+            return SETTINGS_ACCOUNT;
+        }
+
+        accountService.updateNickName(account, nicknameForm);
+        redirectAttributes.addFlashAttribute("message", "닉네임 변경이 완료되었습니다.");
+        return "redirect:/" + SETTINGS_ACCOUNT;
     }
 }
