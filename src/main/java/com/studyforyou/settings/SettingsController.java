@@ -146,7 +146,7 @@ public class SettingsController {
 
     @PostMapping("/settings/tags/add")
     @ResponseBody
-    public ResponseEntity tagsAdd(@CurrentUser Account account, Model model, @RequestBody TagForm tagForm) {
+    public ResponseEntity tagsAdd(@CurrentUser Account account, @RequestBody TagForm tagForm) {
         String title = tagForm.getTagTitle();
 
         Tag tag = tagRepository.findByTitle(title);
@@ -156,6 +156,22 @@ public class SettingsController {
         }
 
         accountService.addTag(account, tag);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/settings/tags/remove")
+    @ResponseBody
+    public ResponseEntity tagsRemove(@CurrentUser Account account, @RequestBody TagForm tagForm) {
+        String title = tagForm.getTagTitle();
+
+        Tag tag = tagRepository.findByTitle(title);
+
+        if (tag == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        accountService.removeTag(account, tag);
 
         return ResponseEntity.ok().build();
     }

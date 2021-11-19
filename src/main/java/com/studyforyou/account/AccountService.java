@@ -143,4 +143,9 @@ public class AccountService implements UserDetailsService {
 
         return byId.getTags();
     }
+
+    public void removeTag(Account account, Tag tag) {
+        Account accountById = accountRepository.findById(account.getId()).orElseThrow(EntityNotFoundException::new);
+        accountById.getTags().remove(tag);
+    }
 }
