@@ -26,6 +26,7 @@ public class SettingsController {
     public static final String SETTINGS_PASSWORD = "settings/password";
     public static final String SETTINGS_NOTIFICATIONS = "settings/notifications";
     public static final String SETTINGS_ACCOUNT = "settings/account";
+    public static final String SETTINGS_TAGS = "settings/tags";
     private final AccountService accountService;
     private final NicknameValidator nicknameValidator;
     private final PasswordFormValidator passwordFormValidator;
@@ -128,4 +129,13 @@ public class SettingsController {
         redirectAttributes.addFlashAttribute("message", "닉네임 변경이 완료되었습니다.");
         return "redirect:/" + SETTINGS_ACCOUNT;
     }
+
+    @GetMapping("/settings/tags")
+    public String tagsUpdate(@CurrentUser Account account, Model model) {
+        model.addAttribute(account); //프로필 이미지
+
+        return SETTINGS_TAGS;
+    }
+
+
 }
