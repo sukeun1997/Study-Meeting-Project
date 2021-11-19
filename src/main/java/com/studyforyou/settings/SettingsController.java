@@ -1,5 +1,7 @@
 package com.studyforyou.settings;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyforyou.account.AccountService;
 import com.studyforyou.account.CurrentUser;
 import com.studyforyou.account.SignUpFormValidator;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,7 @@ public class SettingsController {
     private final NicknameValidator nicknameValidator;
     private final PasswordFormValidator passwordFormValidator;
     private final TagRepository tagRepository;
+    private final ObjectMapper objectMapper;
     private static final ModelMapper modelMapper = new ModelMapper();
 
     @InitBinder("passwordForm")
@@ -136,11 +140,15 @@ public class SettingsController {
     }
 
     @GetMapping("/settings/tags")
-    public String tagsUpdate(@CurrentUser Account account, Model model) {
+    public String tagsUpdate(@CurrentUser Account account, Model model) throws JsonProcessingException {
         model.addAttribute(account); //프로필 이미지
 
         Set<Tag> tags = accountService.getTags(account);
         model.addAttribute("tags", tags.stream().map(Tag::getTitle).collect(Collectors.toSet()));
+
+        List<String> list = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(list));
+
         return SETTINGS_TAGS;
     }
 
