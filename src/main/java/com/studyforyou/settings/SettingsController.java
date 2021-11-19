@@ -4,16 +4,18 @@ import com.studyforyou.account.AccountService;
 import com.studyforyou.account.CurrentUser;
 import com.studyforyou.account.SignUpFormValidator;
 import com.studyforyou.domain.Account;
+import com.studyforyou.domain.Tag;
 import com.studyforyou.dto.PasswordForm;
+import com.studyforyou.dto.TagForm;
+import com.studyforyou.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
@@ -30,6 +32,7 @@ public class SettingsController {
     private final AccountService accountService;
     private final NicknameValidator nicknameValidator;
     private final PasswordFormValidator passwordFormValidator;
+    private final TagRepository tagRepository;
     private static final ModelMapper modelMapper = new ModelMapper();
 
     @InitBinder("passwordForm")
@@ -137,5 +140,19 @@ public class SettingsController {
         return SETTINGS_TAGS;
     }
 
+    @PostMapping("/settings/tags/add")
+    @ResponseBody
+    public ResponseEntity tagsAdd(@CurrentUser Account account, Model model, @RequestBody TagForm tagForm) {
+        String title = tagForm.getTagTitle();
 
+        Tag tag = tagRepository.findByTitle(title);
+
+        if (tag == null) {
+            tag = tagRepository.save(Tag.builder().title(tagForm.getTagTitle()).build());
+        }
+
+        accountService.addTag(account, tag);
+
+        return ResponseEntity.ok().build();
+    }
 }

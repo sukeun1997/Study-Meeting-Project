@@ -1,6 +1,7 @@
 package com.studyforyou.account;
 
 import com.studyforyou.domain.Account;
+import com.studyforyou.domain.Tag;
 import com.studyforyou.dto.PasswordForm;
 import com.studyforyou.dto.SignUpForm;
 import com.studyforyou.repository.AccountRepository;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -125,5 +127,11 @@ public class AccountService implements UserDetailsService {
         mailMessage.setText("/login-by-email?token="+ account.getEmailCheckToken()+"&email="+ account.getEmail());
 
         javaMailSender.send(mailMessage);
+    }
+
+    public void addTag(Account account, Tag tag) {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+
+        byId.ifPresent(a -> a.getTags().add(tag));
     }
 }

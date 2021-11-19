@@ -1,2 +1,9 @@
-package com.studyforyou.dto;public class TagForm {
+package com.studyforyou.dto;
+
+import lombok.Data;
+
+@Data
+public class TagForm {
+
+    private String tagTitle;
 }
