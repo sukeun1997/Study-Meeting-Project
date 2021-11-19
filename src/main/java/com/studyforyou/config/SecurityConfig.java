@@ -26,20 +26,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
         http.authorizeRequests()
-                .mvcMatchers("/login").not().fullyAuthenticated()
-                .mvcMatchers("/", "/sign-up",
-                        "member/new", "/check-email-token", "/check-email-login", "/login-link")
-                .permitAll()
+                .mvcMatchers("/", "/login", "/sign-up", "/check-email-token",
+                        "/email-login", "/login-by-email").permitAll()
                 .mvcMatchers(HttpMethod.GET, "/profile/*").permitAll()
                 .anyRequest().authenticated();
 
+        http.formLogin()
+                .loginPage("/login").permitAll();
 
-        http.formLogin().loginPage("/login")
-                .permitAll();
-
-        http.logout().logoutSuccessUrl("/");
+        http.logout()
+                .logoutSuccessUrl("/");
 
         http.rememberMe()
                 .userDetailsService(accountService)

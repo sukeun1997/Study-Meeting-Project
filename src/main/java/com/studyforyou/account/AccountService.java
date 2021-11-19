@@ -114,5 +114,16 @@ public class AccountService implements UserDetailsService {
     public void updateNickName(Account account, NicknameForm nickNameForm) {
         account.setNickname(nickNameForm.getNickname());
         accountRepository.save(account);
+        login(account);
+    }
+
+    public void sendConfirmEmail(Account account) {
+        account.generateEmailCheckToken();
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(account.getEmail());
+        mailMessage.setSubject("스터디포유, 이메일 로그인 인증");
+        mailMessage.setText("/login-by-email?token="+ account.getEmailCheckToken()+"&email="+ account.getEmail());
+
+        javaMailSender.send(mailMessage);
     }
 }

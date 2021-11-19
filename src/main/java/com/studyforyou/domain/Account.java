@@ -93,4 +93,8 @@ public class Account {
         this.studyUpdatedByEmail = notifications.isStudyUpdatedByEmail();
         this.studyUpdatedByWeb = notifications.isStudyUpdatedByWeb();
     }
+
+    public boolean canSendConfirmEmail() {
+        return this.getEmailCheckTokenGeneratedAt().isBefore(LocalDateTime.now().minusHours(1));
+    }
 }

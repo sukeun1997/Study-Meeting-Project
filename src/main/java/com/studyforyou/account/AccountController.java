@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
@@ -21,6 +22,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class AccountController {
 
+    public static final String ACCOUNT_EMAIL_LOGIN = "account/email-login";
     private final SignUpFormValidator signUpFormValidator;
     private final AccountService accountService;
     private final AccountRepository accountRepository;
@@ -108,8 +110,48 @@ public class AccountController {
             throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
         }
 
-        model.addAttribute("account",byNickname);
+        model.addAttribute("account", byNickname);
         model.addAttribute("isOwner", byNickname.equals(account));
         return "account/profile";
+    }
+
+    @GetMapping("/email-login")
+    public String emailLogin() {
+        return ACCOUNT_EMAIL_LOGIN;
+    }
+
+    @PostMapping("/email-login")
+    public String emailLogin(Model model, String email, RedirectAttributes redirectAttributes
+    ) {
+
+        Account byEmail = accountRepository.findByEmail(email);
+        if (byEmail == null) {
+            model.addAttribute("error", "입력하신 이메일은 존재하지 않습니다.");
+            return ACCOUNT_EMAIL_LOGIN;
+        }
+
+        if (byEmail.canSendConfirmEmail()) {
+            model.addAttribute("error", "이메일 로그인은 1시간 뒤에 사용할 수 있습니다.");
+            return ACCOUNT_EMAIL_LOGIN;
+        }
+
+        accountService.sendConfirmEmail(byEmail);
+        redirectAttributes.addFlashAttribute("message", "이메일 인증을 해 주세요");
+        return "redirect:/email-login";
+    }
+
+    @GetMapping("/login-by-email")
+    public String loginByEmail(Model model,String email,String token) {
+
+        String view = "account/logged-in-by-email";
+        Account byEmail = accountRepository.findByEmail(email);
+
+        if (byEmail == null || !byEmail.isValidToken(token, byEmail)) {
+            model.addAttribute("error", "로그인 할 수 없습니다.");
+            return view;
+        }
+
+        accountService.login(byEmail);
+        return view;
     }
 }
