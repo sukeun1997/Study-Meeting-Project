@@ -12,7 +12,7 @@ import org.springframework.security.test.context.support.WithSecurityContextFact
 import java.lang.annotation.Annotation;
 
 @RequiredArgsConstructor
-public class WithAccountSecurityContextFacotry implements WithSecurityContextFactory<WithAccount> {
+public class WithAccountSecurityContextFactory implements WithSecurityContextFactory<WithAccount> {
 
     private final AccountService accountService;
 

@@ -27,7 +27,7 @@ public class Profile {
     private String profileImage;
 
 
-    private static ModelMapper modelMapper = new ModelMapper();
+    private static ModelMapper modelMapper;
 
     public static Profile createProfile(Account account) {
         Profile profile = new Profile();

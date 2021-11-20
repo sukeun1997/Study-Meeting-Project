@@ -20,7 +20,7 @@ public class Notifications {
 
     private boolean studyUpdatedByWeb;
 
-    private static ModelMapper modelMapper = new ModelMapper();
+    private static ModelMapper modelMapper;
 
 
     public static Notifications createNotifications(Account account) {

@@ -9,6 +9,7 @@ import com.studyforyou.settings.NicknameForm;
 import com.studyforyou.settings.Notifications;
 import com.studyforyou.settings.Profile;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,6 +37,7 @@ public class AccountService implements UserDetailsService {
     private final JavaMailSender javaMailSender;
 
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
 
     public Account processNewAccount(SignUpForm signUpForm) {
@@ -45,14 +47,9 @@ public class AccountService implements UserDetailsService {
     }
 
     private Account savedNewAccount(SignUpForm signUpForm) {
-        Account account = Account.builder()
-                .email(signUpForm.getEmail())
-                .nickname(signUpForm.getNickname())
-                .password(passwordEncoder.encode(signUpForm.getPassword()))
-                .studyCreatedByWeb(true)
-                .studyEnrollmentResultByWeb(true)
-                .studyUpdatedByWeb(true)
-                .build();
+
+        signUpForm.setPassword(passwordEncoder.encode(signUpForm.getPassword()));
+        Account account = modelMapper.map(signUpForm, Account.class);
         account.generateEmailCheckToken();
         return accountRepository.save(account);
     }

@@ -39,7 +39,7 @@ public class SettingsController {
     private final PasswordFormValidator passwordFormValidator;
     private final TagRepository tagRepository;
     private final ObjectMapper objectMapper;
-    private static final ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper;
 
     @InitBinder("passwordForm")
     public void initBinder(WebDataBinder webDataBinder) {
