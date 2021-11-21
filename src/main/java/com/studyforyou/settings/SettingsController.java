@@ -7,9 +7,13 @@ import com.studyforyou.account.CurrentUser;
 import com.studyforyou.account.SignUpFormValidator;
 import com.studyforyou.domain.Account;
 import com.studyforyou.domain.Tag;
+import com.studyforyou.domain.Zone;
 import com.studyforyou.dto.PasswordForm;
 import com.studyforyou.dto.TagForm;
+import com.studyforyou.dto.ZoneForm;
 import com.studyforyou.repository.TagRepository;
+import com.studyforyou.repository.ZoneRepository;
+import com.studyforyou.zone.ZoneService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +38,15 @@ public class SettingsController {
     public static final String SETTINGS_NOTIFICATIONS = "settings/notifications";
     public static final String SETTINGS_ACCOUNT = "settings/account";
     public static final String SETTINGS_TAGS = "settings/tags";
+    public static final String SETTINGS_ZONES = "settings/zones";
     private final AccountService accountService;
     private final NicknameValidator nicknameValidator;
     private final PasswordFormValidator passwordFormValidator;
     private final TagRepository tagRepository;
     private final ObjectMapper objectMapper;
     private final ModelMapper modelMapper;
+    private final ZoneRepository zoneRepository;
+
 
     @InitBinder("passwordForm")
     public void initBinder(WebDataBinder webDataBinder) {
@@ -182,5 +189,16 @@ public class SettingsController {
         accountService.removeTag(account, tag);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/settings/zones")
+    public String zoneUpdate(@CurrentUser Account account, Model model) throws Exception {
+
+        model.addAttribute(account);
+
+        List<String> whitelist = zoneRepository.findAll().stream().map(Zone::toString).collect(Collectors.toList());
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(whitelist));
+
+        return SETTINGS_ZONES;
     }
 }

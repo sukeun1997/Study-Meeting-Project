@@ -8,9 +8,7 @@ import org.springframework.ui.ModelMap;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -62,6 +60,9 @@ public class Account {
 
     @ManyToMany
     private Set<Tag> tags = new HashSet<>();
+
+    @ManyToMany
+    private Set<Zone> zones = new HashSet<>();
 
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();

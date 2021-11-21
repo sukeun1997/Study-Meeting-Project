@@ -2,6 +2,7 @@ package com.studyforyou.settings;
 
 import com.studyforyou.domain.Account;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.URL;
 import org.modelmapper.ModelMapper;
@@ -27,7 +28,7 @@ public class Profile {
     private String profileImage;
 
 
-    private static ModelMapper modelMapper;
+    private static ModelMapper modelMapper = new ModelMapper();
 
     public static Profile createProfile(Account account) {
         Profile profile = new Profile();

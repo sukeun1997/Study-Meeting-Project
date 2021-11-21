@@ -16,6 +16,7 @@
     .container {
       max-width: 100%;
     }
+
     .tagify-outside{
       border: 0;
       padding: 0;
@@ -119,6 +120,16 @@
       })
     }, false)
   }())
+</script>
+
+<script type="application/javascript" th:inline="javascript" th:fragment="ajax-csrf-header">
+  $(function() {
+    var csrfToken = /*[[${_csrf.token}]]*/ null;
+    var csrfHeader = /*[[${_csrf.headerName}]]*/ null;
+    $(document).ajaxSend(function (e, xhr, options) {
+      xhr.setRequestHeader(csrfHeader, csrfToken);
+    });
+  });
 </script>
 
 </html>
