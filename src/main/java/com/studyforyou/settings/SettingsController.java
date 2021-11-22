@@ -29,14 +29,26 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/settings")
 public class SettingsController {
 
+    // HTML 파일
     public static final String SETTINGS_PROFILE = "settings/profile";
     public static final String SETTINGS_PASSWORD = "settings/password";
     public static final String SETTINGS_NOTIFICATIONS = "settings/notifications";
     public static final String SETTINGS_ACCOUNT = "settings/account";
     public static final String SETTINGS_TAGS = "settings/tags";
     public static final String SETTINGS_ZONES = "settings/zones";
+
+
+    // 주소
+    public static final String PROFILE = "/profile";
+    public static final String PASSWORD = "/password";
+    public static final String NOTIFICATIONS = "/notifications";
+    public static final String ACCOUNT = "/account";
+    public static final String TAGS = "/tags";
+    public static final String ZONES = "/zones";
+
     private final AccountService accountService;
     private final NicknameValidator nicknameValidator;
     private final PasswordFormValidator passwordFormValidator;
@@ -56,7 +68,7 @@ public class SettingsController {
         webDataBinder.addValidators(nicknameValidator);
     }
 
-    @GetMapping("/settings/profile")
+    @GetMapping(PROFILE)
     public String profileUpdateForm(@CurrentAccount Account account, Model model) {
 
         model.addAttribute(account);
@@ -65,7 +77,7 @@ public class SettingsController {
         return SETTINGS_PROFILE;
     }
 
-    @PostMapping("/settings/profile")
+    @PostMapping(PROFILE)
     public String profileUpdate(@CurrentAccount Account account, @Valid Profile profile, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
@@ -78,7 +90,7 @@ public class SettingsController {
         return "redirect:/profile/" + account.getNickname();
     }
 
-    @GetMapping("/settings/password")
+    @GetMapping(PASSWORD)
     public String passwordUpdate(@CurrentAccount Account account, Model model) {
 
         model.addAttribute(account);
@@ -86,7 +98,7 @@ public class SettingsController {
         return SETTINGS_PASSWORD;
     }
 
-    @PostMapping("/settings/password")
+    @PostMapping(PASSWORD)
     public String passwordUpdate(@Valid PasswordForm passwordForm, BindingResult bindingResult,
                                  Model model, @CurrentAccount Account account, RedirectAttributes redirectAttributes) {
 
@@ -101,7 +113,7 @@ public class SettingsController {
     }
 
 
-    @GetMapping("/settings/notifications")
+    @GetMapping(NOTIFICATIONS)
     public String notificationsSetting(@CurrentAccount Account account, Model model) {
 
         model.addAttribute(account);
@@ -109,7 +121,7 @@ public class SettingsController {
         return SETTINGS_NOTIFICATIONS;
     }
 
-    @PostMapping("/settings/notifications")
+    @PostMapping(NOTIFICATIONS)
     public String notificationsSetting(@CurrentAccount Account account, @Valid Notifications notifications, Model model, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
@@ -123,14 +135,14 @@ public class SettingsController {
 
     }
 
-    @GetMapping("/settings/account")
+    @GetMapping(ACCOUNT)
     public String nickNameUpdate(Model model, @CurrentAccount Account account) {
         model.addAttribute(account);
         model.addAttribute(modelMapper.map(account, NicknameForm.class));
         return SETTINGS_ACCOUNT;
     }
 
-    @PostMapping("/settings/account")
+    @PostMapping(ACCOUNT)
     public String nickNameUpdate(@Valid NicknameForm nicknameForm, BindingResult bindingResult, Model model, @CurrentAccount Account account,
                                  RedirectAttributes redirectAttributes) {
 
@@ -144,7 +156,7 @@ public class SettingsController {
         return "redirect:/" + SETTINGS_ACCOUNT;
     }
 
-    @GetMapping("/settings/tags")
+    @GetMapping(TAGS)
     public String tagsUpdate(@CurrentAccount Account account, Model model) throws JsonProcessingException {
         model.addAttribute(account); //프로필 이미지
 
@@ -157,7 +169,7 @@ public class SettingsController {
         return SETTINGS_TAGS;
     }
 
-    @PostMapping("/settings/tags/add")
+    @PostMapping(TAGS + "/add")
     @ResponseBody
     public ResponseEntity tagsAdd(@CurrentAccount Account account, @RequestBody TagForm tagForm) {
         String title = tagForm.getTagTitle();
@@ -173,7 +185,7 @@ public class SettingsController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/settings/tags/remove")
+    @PostMapping(TAGS + "/remove")
     @ResponseBody
     public ResponseEntity tagsRemove(@CurrentAccount Account account, @RequestBody TagForm tagForm) {
         String title = tagForm.getTagTitle();
@@ -189,7 +201,7 @@ public class SettingsController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/settings/zones")
+    @GetMapping(ZONES)
     public String zoneUpdate(@CurrentAccount Account account, Model model) throws Exception {
 
         model.addAttribute(account);
@@ -203,7 +215,7 @@ public class SettingsController {
         return SETTINGS_ZONES;
     }
 
-    @PostMapping("/settings/zones/add")
+    @PostMapping(ZONES + "/add")
     @ResponseBody
     public ResponseEntity zoneAdd(@CurrentAccount Account account, @RequestBody ZoneForm zoneForm) {
 
@@ -218,7 +230,7 @@ public class SettingsController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/settings/zones/remove")
+    @PostMapping(ZONES + "/remove")
     @ResponseBody
     public ResponseEntity zoneRemove(@CurrentAccount Account account, @RequestBody ZoneForm zoneForm) {
 
