@@ -196,9 +196,27 @@ public class SettingsController {
 
         model.addAttribute(account);
 
+        Set<Zone> zones = accountService.getZones(account);
+        model.addAttribute("zones", zones);
+
         List<String> whitelist = zoneRepository.findAll().stream().map(Zone::toString).collect(Collectors.toList());
         model.addAttribute("whitelist", objectMapper.writeValueAsString(whitelist));
 
         return SETTINGS_ZONES;
+    }
+
+    @PostMapping("/settings/zones/add")
+    @ResponseBody
+    public ResponseEntity zoneUpdate(@CurrentUser Account account, @RequestBody ZoneForm zoneForm) {
+
+        Zone zone = zoneRepository.findByCityAndLocalNameOfCity(zoneForm.getCity(), zoneForm.getLocalNameOfCity());
+
+        if (zone== null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        accountService.addZone(account, zone);
+
+        return ResponseEntity.ok().build();
     }
 }

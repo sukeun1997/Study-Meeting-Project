@@ -1,15 +1,32 @@
 package com.studyforyou.dto;
 
 
+import com.studyforyou.domain.Zone;
 import lombok.Data;
+
+import javax.persistence.Column;
 
 
 @Data
 public class ZoneForm {
 
-    private String city;
+    private String zoneName;
 
-    private String localNameOfCity;
+    public String getCity() {
+        return zoneName.substring(0, zoneName.indexOf("("));
+    }
 
-    private String province;
+    public String getLocalNameOfCity(){
+        return zoneName.substring(zoneName.indexOf("(")+1,zoneName.indexOf(")"));
+    }
+
+    private String getProvince() {
+     return zoneName.substring(zoneName.indexOf("/"));
+    }
+
+
+    public Zone getZone() {
+        return Zone.builder().city(getCity()).localNameOfCity(getLocalNameOfCity()).province(getProvince()).build();
+    }
+
 }

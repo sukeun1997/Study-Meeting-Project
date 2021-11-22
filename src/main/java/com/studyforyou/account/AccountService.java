@@ -2,6 +2,7 @@ package com.studyforyou.account;
 
 import com.studyforyou.domain.Account;
 import com.studyforyou.domain.Tag;
+import com.studyforyou.domain.Zone;
 import com.studyforyou.dto.PasswordForm;
 import com.studyforyou.dto.SignUpForm;
 import com.studyforyou.repository.AccountRepository;
@@ -144,5 +145,15 @@ public class AccountService implements UserDetailsService {
     public void removeTag(Account account, Tag tag) {
         Account accountById = accountRepository.findById(account.getId()).orElseThrow(EntityNotFoundException::new);
         accountById.getTags().remove(tag);
+    }
+
+    public void addZone(Account account, Zone zone) {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        byId.ifPresent(user -> user.getZones().add(zone));
+    }
+
+    public Set<Zone> getZones(Account account) {
+        Account byId = accountRepository.findById(account.getId()).orElseThrow(EntityNotFoundException::new);
+        return byId.getZones();
     }
 }
