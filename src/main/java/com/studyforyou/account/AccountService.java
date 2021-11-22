@@ -5,14 +5,18 @@ import com.studyforyou.domain.Tag;
 import com.studyforyou.domain.Zone;
 import com.studyforyou.dto.PasswordForm;
 import com.studyforyou.dto.SignUpForm;
+import com.studyforyou.mail.EmailMessage;
+import com.studyforyou.mail.EmailService;
 import com.studyforyou.repository.AccountRepository;
 import com.studyforyou.settings.NicknameForm;
 import com.studyforyou.settings.Notifications;
 import com.studyforyou.settings.Profile;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -24,22 +28,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional
 public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
-    private final JavaMailSender javaMailSender;
+    private final EmailService emailService;
 
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
-
 
     public Account processNewAccount(SignUpForm signUpForm) {
         Account newAccount = savedNewAccount(signUpForm);
@@ -56,12 +62,14 @@ public class AccountService implements UserDetailsService {
     }
 
     public void sendSignUpConfirmEmail(Account newAccount) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(newAccount.getEmail());
-        mailMessage.setSubject("스터디포유, 회원 가입 인증");
-        mailMessage.setText("/check-email-token?token="+ newAccount.getEmailCheckToken()+"&email="+ newAccount.getEmail());
 
-        javaMailSender.send(mailMessage);
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(newAccount.getEmail())
+                .subject("스터디포유, 회원 가입 인증")
+                .message("/check-email-token?token=" + newAccount.getEmailCheckToken() + "&email=" + newAccount.getEmail())
+                .build();
+
+        emailService.sendEmail(emailMessage);
     }
 
     public void login(Account account) {
@@ -120,13 +128,17 @@ public class AccountService implements UserDetailsService {
     }
 
     public void sendConfirmEmail(Account account) {
-        account.generateEmailCheckToken();
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(account.getEmail());
-        mailMessage.setSubject("스터디포유, 이메일 로그인 인증");
-        mailMessage.setText("/login-by-email?token="+ account.getEmailCheckToken()+"&email="+ account.getEmail());
 
-        javaMailSender.send(mailMessage);
+        account.generateEmailCheckToken();
+
+
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(account.getEmail())
+                .subject("스터디포유, 이메일 로그인 인증")
+                .message("/login-by-email?token="+ account.getEmailCheckToken()+"&email="+ account.getEmail())
+                .build();
+
+        emailService.sendEmail(emailMessage);
     }
 
     public void addTag(Account account, Tag tag) {

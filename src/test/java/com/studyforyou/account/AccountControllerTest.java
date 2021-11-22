@@ -2,6 +2,8 @@ package com.studyforyou.account;
 
 import com.studyforyou.domain.Account;
 import com.studyforyou.dto.SignUpForm;
+import com.studyforyou.mail.EmailMessage;
+import com.studyforyou.mail.EmailService;
 import com.studyforyou.repository.AccountRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -47,7 +49,7 @@ class AccountControllerTest {
     private AccountService accountService;
 
     @MockBean
-    JavaMailSender javaMailSender;
+    EmailService emailService;
 
 
     @AfterEach
@@ -96,7 +98,7 @@ class AccountControllerTest {
         assertNotEquals(account.getPassword(), "123456789");
 
         assertTrue(accountRepository.existsByEmail("email@eamil.com"));
-        then(javaMailSender).should().send(any(SimpleMailMessage.class));
+        then(emailService).should().sendEmail(any(EmailMessage.class));
 
     }
 
@@ -130,7 +132,6 @@ class AccountControllerTest {
                 .andExpect(model().attributeDoesNotExist("error"))
                 .andExpect(view().name("account/checked-email"))
                 .andExpect(authenticated());
-
     }
 
 
@@ -176,7 +177,6 @@ class AccountControllerTest {
     @DisplayName("로그인 실패 테스트")
     void login_fail_test_nickname() throws Exception {
         createAccount();
-
 
         mockMvc.perform(post("/login")
                         .param("username", "11111")
