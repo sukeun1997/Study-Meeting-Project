@@ -152,8 +152,15 @@ public class AccountService implements UserDetailsService {
         byId.ifPresent(user -> user.getZones().add(zone));
     }
 
+    @Transactional(readOnly = true)
     public Set<Zone> getZones(Account account) {
         Account byId = accountRepository.findById(account.getId()).orElseThrow(EntityNotFoundException::new);
         return byId.getZones();
+    }
+
+    public void removeZone(Account account, Zone zone) {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+
+        byId.ifPresent(user -> user.getZones().remove(zone));
     }
 }
