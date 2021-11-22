@@ -5,7 +5,6 @@ import com.studyforyou.domain.Account;
 import com.studyforyou.dto.SignUpForm;
 import com.studyforyou.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
-import org.dom4j.rule.Mode;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -77,14 +76,14 @@ public class AccountController {
     }
 
     @GetMapping("/check-email")
-    public String checkEmail(@CurrentUser Account account, Model model) {
+    public String checkEmail(@CurrentAccount Account account, Model model) {
 
         model.addAttribute("email", account.getEmail());
         return "account/check-email";
     }
 
     @GetMapping("/resend-confirm-email")
-    public String resendEmail(@CurrentUser Account account, Model model) {
+    public String resendEmail(@CurrentAccount Account account, Model model) {
 
 
         if (!account.canResendEmail()) {
@@ -103,7 +102,7 @@ public class AccountController {
     }
 
     @GetMapping("/profile/{nickname}")
-    public String showProfile(@PathVariable String nickname, Model model, @CurrentUser Account account) {
+    public String showProfile(@PathVariable String nickname, Model model, @CurrentAccount Account account) {
 
         Account byNickname = accountRepository.findByNickname(nickname);
         if (nickname == null) {
