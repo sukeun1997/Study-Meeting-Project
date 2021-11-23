@@ -42,7 +42,6 @@ public class Study {
 
     private boolean useBanner;
 
-
     @ManyToMany
     private Set<Account> mangers = new HashSet<>();
 
@@ -55,8 +54,7 @@ public class Study {
     @ManyToMany
     private Set<Tag> tags = new HashSet<>();
 
-
-
-
-
+    public void addMangers(Account byNickname) {
+        getMangers().add(byNickname);
+    }
 }
