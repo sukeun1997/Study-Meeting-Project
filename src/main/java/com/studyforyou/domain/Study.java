@@ -1,5 +1,6 @@
 package com.studyforyou.domain;
 
+import com.studyforyou.account.UserAccount;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,6 +11,13 @@ import java.util.Set;
 @Entity
 @Getter @Setter @EqualsAndHashCode(of ="id")
 @AllArgsConstructor @NoArgsConstructor @Builder
+@NamedEntityGraph(name = "studyGraph", attributeNodes = {
+        @NamedAttributeNode("tags"),
+        @NamedAttributeNode("members"),
+        @NamedAttributeNode("managers"),
+        @NamedAttributeNode("zones")
+})
+
 public class Study {
 
     @Id @GeneratedValue
@@ -43,7 +51,7 @@ public class Study {
     private boolean useBanner;
 
     @ManyToMany
-    private Set<Account> mangers = new HashSet<>();
+    private Set<Account> managers = new HashSet<>();
 
     @ManyToMany
     private Set<Account> members = new HashSet<>();
@@ -55,6 +63,20 @@ public class Study {
     private Set<Tag> tags = new HashSet<>();
 
     public void addMangers(Account byNickname) {
-        getMangers().add(byNickname);
+        this.managers.add(byNickname);
     }
+
+    public boolean isJoinable(UserAccount account) {
+        return this.published && this.recruiting &&
+                !this.managers.contains(account) && !this.members.contains(account);
+    }
+
+    public boolean isMember(UserAccount account) {
+        return this.members.contains(account.getAccount());
+    }
+
+    public boolean isManager(UserAccount account) {
+        return this.managers.contains(account.getAccount());
+    }
+
 }

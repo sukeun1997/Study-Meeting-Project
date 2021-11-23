@@ -2,7 +2,9 @@ package com.studyforyou.study;
 
 import com.studyforyou.account.CurrentAccount;
 import com.studyforyou.domain.Account;
+import com.studyforyou.domain.Study;
 import com.studyforyou.dto.StudyForm;
+import com.studyforyou.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.units.qual.Acceleration;
 import org.springframework.stereotype.Controller;
@@ -11,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
@@ -27,6 +30,7 @@ public class StudyController {
 
     private final StudyValidator studyValidator;
     private final StudyService studyService;
+    private final StudyRepository studyRepository;
 
 
     @InitBinder("studyForm")
@@ -43,7 +47,7 @@ public class StudyController {
     }
 
     @PostMapping(NEW_STUDY)
-    public String NewStudyForm(@CurrentAccount Account account,Model model, @Valid StudyForm studyForm, BindingResult bindingResult) {
+    public String NewStudyForm(@CurrentAccount Account account, Model model, @Valid StudyForm studyForm, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(account);
@@ -53,6 +57,14 @@ public class StudyController {
 
         studyService.newStudy(account, studyForm);
         return "redirect:/study/" + URLEncoder.encode(studyForm.getPath(), StandardCharsets.UTF_8);
+    }
+
+    @GetMapping("/study/{path}")
+    public String studyView(@CurrentAccount Account account, Model model, @PathVariable String path) {
+
+        model.addAttribute(account);
+        model.addAttribute(studyRepository.findByPath(path));
+        return "study/view";
     }
 
 }
