@@ -51,7 +51,7 @@ public class StudyController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(account);
-            return STUDY;
+            return STUDY + "study";
         }
 
 
