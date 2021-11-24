@@ -3,10 +3,11 @@ package com.studyforyou.study;
 import com.studyforyou.account.CurrentAccount;
 import com.studyforyou.domain.Account;
 import com.studyforyou.domain.Study;
+import com.studyforyou.dto.StudyDescriptionForm;
 import com.studyforyou.dto.StudyForm;
 import com.studyforyou.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
-import org.checkerframework.checker.units.qual.Acceleration;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,9 +16,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -27,6 +28,9 @@ public class StudyController {
 
     public static final String STUDY = "study/";
     public static final String NEW_STUDY = "/new-study";
+    public static final String MEMBERS = "members";
+    public static final String VIEW = "view";
+    public static final String FORM = "form";
 
     private final StudyValidator studyValidator;
     private final StudyService studyService;
@@ -43,7 +47,7 @@ public class StudyController {
         model.addAttribute(new StudyForm());
         model.addAttribute(account);
 
-        return STUDY + "form";
+        return STUDY + FORM;
     }
 
     @PostMapping(NEW_STUDY)
@@ -51,7 +55,7 @@ public class StudyController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(account);
-            return STUDY + "form";
+            return STUDY + FORM;
         }
 
 
@@ -63,19 +67,17 @@ public class StudyController {
     public String studyView(@CurrentAccount Account account, Model model, @PathVariable String path) {
 
         model.addAttribute(account);
-        model.addAttribute(studyRepository.findByPath(path));
-        return STUDY + "view";
+        model.addAttribute(studyService.getStudy(path));
+        return STUDY + VIEW;
     }
 
 
     @GetMapping("/study/{path}/members")
     public String studyMembers(@CurrentAccount Account account, Model model, @PathVariable String path) {
 
-        Study study = studyRepository.findByPath(path);
-
         model.addAttribute(account);
-        model.addAttribute(study);
+        model.addAttribute(studyService.getStudy(path));
 
-        return STUDY + "members";
+        return STUDY + MEMBERS;
     }
 }

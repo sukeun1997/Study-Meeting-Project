@@ -2,6 +2,7 @@ package com.studyforyou.account;
 
 import com.studyforyou.config.AppProperties;
 import com.studyforyou.domain.Account;
+import com.studyforyou.domain.Study;
 import com.studyforyou.domain.Tag;
 import com.studyforyou.domain.Zone;
 import com.studyforyou.dto.PasswordForm;
@@ -34,6 +35,7 @@ import org.thymeleaf.context.Context;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.persistence.EntityNotFoundException;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -196,5 +198,15 @@ public class AccountService implements UserDetailsService {
         Optional<Account> byId = accountRepository.findById(account.getId());
 
         byId.ifPresent(user -> user.getZones().remove(zone));
+    }
+
+    @Transactional(readOnly = true)
+    public Account getAccount(String nickname) {
+        Account account = accountRepository.findByNickname(nickname);
+        if (nickname == null) {
+            throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
+        }
+
+        return account;
     }
 }
