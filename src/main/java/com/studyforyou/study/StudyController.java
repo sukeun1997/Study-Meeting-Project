@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class StudyController {
 
-    public static final String STUDY = "/study/study";
+    public static final String STUDY = "study/";
     public static final String NEW_STUDY = "/new-study";
 
     private final StudyValidator studyValidator;
@@ -43,7 +43,7 @@ public class StudyController {
         model.addAttribute(new StudyForm());
         model.addAttribute(account);
 
-        return STUDY;
+        return STUDY + "study";
     }
 
     @PostMapping(NEW_STUDY)
@@ -64,7 +64,18 @@ public class StudyController {
 
         model.addAttribute(account);
         model.addAttribute(studyRepository.findByPath(path));
-        return "study/view";
+        return STUDY + "view";
     }
 
+
+    @GetMapping("/study/{path}/members")
+    public String studyMembers(@CurrentAccount Account account, Model model, @PathVariable String path) {
+
+        Study study = studyRepository.findByPath(path);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+
+        return STUDY + "members";
+    }
 }
