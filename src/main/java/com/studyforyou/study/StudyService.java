@@ -2,6 +2,7 @@ package com.studyforyou.study;
 
 import com.studyforyou.domain.Account;
 import com.studyforyou.domain.Study;
+import com.studyforyou.dto.ImageForm;
 import com.studyforyou.dto.StudyDescriptionForm;
 import com.studyforyou.dto.StudyForm;
 import com.studyforyou.repository.AccountRepository;
@@ -52,5 +53,17 @@ public class StudyService {
         }
 
         return study;
+    }
+
+    public void updateBanner(Study study, ImageForm imageForm) {
+        modelMapper.map(imageForm, study);
+    }
+
+    public void enableBanner(Study study) {
+        study.setUseBanner(true);
+    }
+
+    public void disableBanner(Study study) {
+        study.setUseBanner(false);
     }
 }
