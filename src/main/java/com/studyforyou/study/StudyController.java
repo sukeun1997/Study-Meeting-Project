@@ -43,7 +43,7 @@ public class StudyController {
         model.addAttribute(new StudyForm());
         model.addAttribute(account);
 
-        return STUDY + "study";
+        return STUDY + "form";
     }
 
     @PostMapping(NEW_STUDY)
@@ -51,7 +51,7 @@ public class StudyController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(account);
-            return STUDY + "study";
+            return STUDY + "form";
         }
 
 

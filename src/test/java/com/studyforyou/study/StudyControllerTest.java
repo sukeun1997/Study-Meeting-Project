@@ -74,7 +74,7 @@ class StudyControllerTest {
         mockMvc.perform(get(NEW_STUDY))
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("studyForm"))
-                .andExpect(view().name("study/study"));
+                .andExpect(view().name("study/form"));
     }
 
     @Test
