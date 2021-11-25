@@ -113,4 +113,24 @@ public class StudyService {
     public void removeZone(Study study, Zone zone) {
         study.getZones().remove(zone);
     }
+
+    @Transactional(readOnly = true)
+    public Study getStudyWithManagers(Account account, String path) {
+        Study study = studyRepository.findStudyWithMangersByPath(path);
+
+        checkStudyNull(study);
+        checkStudyManager(account, study);
+
+        return study;
+    }
+
+    public void studyPublish(Study study) {
+        study.setPublished(true);
+        study.setClosed(false);
+    }
+
+    public void studyClose(Study study) {
+        study.setPublished(false);
+        study.setClosed(true);
+    }
 }

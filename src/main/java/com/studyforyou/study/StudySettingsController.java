@@ -41,12 +41,14 @@ public class StudySettingsController {
     private static final String BANNER = "banner";
     private static final String TAGS = "tags";
     private static final String ZONES = "zones";
+    private static final String STATUS = "status";
     private final StudyService studyService;
     private final TagService tagService;
     private final ModelMapper modelMapper;
     private final ZoneRepository zoneRepository;
     private final TagRepository tagRepository;
     private final ObjectMapper objectMapper;
+    private final StudyRepository studyRepository;
 
     @GetMapping("/description")
     public String studySettingDescription(@CurrentAccount Account account, Model model, @PathVariable String path) {
@@ -201,4 +203,39 @@ public class StudySettingsController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/study")
+    public String studyStatus(@CurrentAccount Account account, Model model, @PathVariable String path) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+
+        return STUDY + STATUS;
+    }
+
+    @PostMapping("/study/publish")
+    public String studyStatusPublish(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+        studyService.studyPublish(study);
+
+        redirectAttributes.addFlashAttribute("message", "상태 변경 완료");
+        return "redirect:/study/" + getUrl(path) + "/settings/study";
+
+    }
+
+    @PostMapping("/study/close")
+    public String studyStatusClose(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+        studyService.studyClose(study);
+
+        redirectAttributes.addFlashAttribute("message", "상태 변경 완료");
+        return "redirect:/study/" + getUrl(path) + "/settings/study";
+
+    }
+
 }
+
+

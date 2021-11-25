@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@NamedEntityGraph(name = "studyGraph", attributeNodes = {
+@NamedEntityGraph(name = "studyAllGraph", attributeNodes = {
         @NamedAttributeNode("tags"),
         @NamedAttributeNode("members"),
         @NamedAttributeNode("managers"),
@@ -33,6 +33,9 @@ import java.util.Set;
         @NamedAttributeNode("zones")
 })
 
+@NamedEntityGraph(name = "studyManagersGraph", attributeNodes = {
+        @NamedAttributeNode("managers")
+})
 public class Study {
 
     @Id

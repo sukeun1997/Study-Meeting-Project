@@ -12,7 +12,7 @@ public interface StudyRepository extends JpaRepository<Study, Long> {
 
     boolean existsByPath(String path);
 
-    @EntityGraph(value = "studyGraph", type = EntityGraph.EntityGraphType.LOAD)
+    @EntityGraph(value = "studyAllGraph", type = EntityGraph.EntityGraphType.LOAD)
     Study findByPath(String path);
 
     @EntityGraph(value = "studyTagsGraph", type = EntityGraph.EntityGraphType.LOAD)
@@ -20,4 +20,8 @@ public interface StudyRepository extends JpaRepository<Study, Long> {
 
     @EntityGraph(value = "studyZonesGraph", type = EntityGraph.EntityGraphType.LOAD)
     Study findAccountWithZonesByPath(String path);
+
+    @EntityGraph(value = "studyManagersGraph", type = EntityGraph.EntityGraphType.LOAD)
+    Study findStudyWithMangersByPath(String path);
+
 }
