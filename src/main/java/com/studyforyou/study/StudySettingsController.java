@@ -27,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -156,7 +157,7 @@ public class StudySettingsController {
         if (tag == null) {
             return ResponseEntity.badRequest().build();
         }
-        studyService.RemoveTags(study, tag);
+        studyService.removeTags(study, tag);
 
         return ResponseEntity.ok().build();
     }
@@ -230,6 +231,38 @@ public class StudySettingsController {
 
         Study study = studyService.getStudyWithManagers(account, path);
         studyService.studyClose(study);
+
+        redirectAttributes.addFlashAttribute("message", "상태 변경 완료");
+        return "redirect:/study/" + getUrl(path) + "/settings/study";
+
+    }
+
+    @PostMapping("/recruit/start")
+    public String studyRecruitStart(@CurrentAccount Account account,Model model, @PathVariable String path, RedirectAttributes redirectAttributes) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        if (studyService.checkRecruitingTime(study)) {
+            redirectAttributes.addFlashAttribute("message", "모집 변경은 1시간마다 가능합니다.");
+            return "redirect:/study/" + getUrl(path) + "/settings/study";
+        }
+        studyService.recruitStart(study);
+
+        redirectAttributes.addFlashAttribute("message", "상태 변경 완료");
+        return "redirect:/study/" + getUrl(path) + "/settings/study";
+
+    }
+
+    @PostMapping("/recruit/stop")
+    public String studyRecruitStop(@CurrentAccount Account account,Model model, @PathVariable String path, RedirectAttributes redirectAttributes) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        if (!studyService.checkRecruitingTime(study)) {
+            redirectAttributes.addFlashAttribute("message", "모집 변경은 1시간마다 가능합니다.");
+            return "redirect:/study/" + getUrl(path) + "/settings/study";
+        }
+        studyService.recruitStop(study);
 
         redirectAttributes.addFlashAttribute("message", "상태 변경 완료");
         return "redirect:/study/" + getUrl(path) + "/settings/study";

@@ -18,6 +18,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -26,8 +28,6 @@ public class StudyService {
     private final StudyRepository studyRepository;
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
-    private final TagRepository tagRepository;
-    private final TagService tagService;
 
     public void newStudy(Account account, StudyForm studyForm) {
         Account byNickname = accountRepository.findByNickname(account.getNickname());
@@ -102,7 +102,7 @@ public class StudyService {
         }
     }
 
-    public void RemoveTags(Study study, Tag tag) {
+    public void removeTags(Study study, Tag tag) {
         study.getTags().remove(tag);
     }
 
@@ -125,12 +125,41 @@ public class StudyService {
     }
 
     public void studyPublish(Study study) {
-        study.setPublished(true);
-        study.setClosed(false);
+        if (!study.isClosed() && !study.isPublished()) {
+            study.setPublished(true);
+            study.setClosed(false);
+            study.setPublishedDateTime(LocalDateTime.now());
+        } else {
+            throw new RuntimeException("스터디가 이미 공개 되었거나 종료 상태 입니다.");
+        }
     }
 
     public void studyClose(Study study) {
-        study.setPublished(false);
-        study.setClosed(true);
+
+        if (!study.isClosed() && study.isPublished()) {
+            study.setPublished(false);
+            study.setClosed(true);
+            study.setClosedDateTime(LocalDateTime.now());
+        } else {
+            throw new RuntimeException("스터디가 이미 종료 되었거나 공개 상태가 아닙니다.");
+        }
+    }
+
+    public void recruitStart(Study study) {
+        study.setRecruiting(true);
+        study.setRecruitingUpdatedDateTime(LocalDateTime.now());
+    }
+
+    public void recruitStop(Study study) {
+        study.setRecruiting(false);
+        study.setRecruitingUpdatedDateTime(LocalDateTime.now());
+    }
+
+    public boolean checkRecruitingTime(Study study) {
+
+        if (study.getRecruitingUpdatedDateTime() == null) {
+            return true;
+        }
+        return study.getRecruitingUpdatedDateTime().isBefore(LocalDateTime.now().minusHours(1));
     }
 }
