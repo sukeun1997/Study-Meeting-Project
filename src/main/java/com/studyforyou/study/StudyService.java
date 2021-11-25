@@ -3,6 +3,7 @@ package com.studyforyou.study;
 import com.studyforyou.domain.Account;
 import com.studyforyou.domain.Study;
 import com.studyforyou.domain.Tag;
+import com.studyforyou.domain.Zone;
 import com.studyforyou.dto.ImageForm;
 import com.studyforyou.dto.StudyDescriptionForm;
 import com.studyforyou.dto.StudyForm;
@@ -77,7 +78,13 @@ public class StudyService {
         checkStudyManager(account, study);
         return study;
     }
-
+    @Transactional(readOnly = true)
+    public Study getStudyWithZones(Account account, String path) {
+        Study study = studyRepository.findAccountWithZonesByPath(path);
+        checkStudyNull(study);
+        checkStudyManager(account, study);
+        return study;
+    }
 
     public void addTags(Study study, Tag tag) {
         study.getTags().add(tag);
@@ -99,4 +106,11 @@ public class StudyService {
         study.getTags().remove(tag);
     }
 
+    public void addZone(Study study, Zone zone) {
+        study.getZones().add(zone);
+    }
+
+    public void removeZone(Study study, Zone zone) {
+        study.getZones().remove(zone);
+    }
 }

@@ -433,7 +433,7 @@
                 tagRequest("/remove", e.detail.data.value);
             }
 
-            var tagInput = document.querySelector("#tags");
+            var tagInput = document.querySelector("#zones");
 
             var tagify = new Tagify(tagInput, {
                 enforceWhitelist: true,
@@ -452,6 +452,7 @@
             tagify.DOM.scope.parentNode.insertBefore(tagify.DOM.input, tagify.DOM.scope);
         });
     </script>
-
 </div>
+
+
 </html>

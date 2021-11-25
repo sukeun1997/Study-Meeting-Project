@@ -6,11 +6,14 @@ import com.studyforyou.account.CurrentAccount;
 import com.studyforyou.domain.Account;
 import com.studyforyou.domain.Study;
 import com.studyforyou.domain.Tag;
+import com.studyforyou.domain.Zone;
 import com.studyforyou.dto.ImageForm;
 import com.studyforyou.dto.StudyDescriptionForm;
 import com.studyforyou.dto.TagForm;
+import com.studyforyou.dto.ZoneForm;
 import com.studyforyou.repository.StudyRepository;
 import com.studyforyou.repository.TagRepository;
+import com.studyforyou.repository.ZoneRepository;
 import com.studyforyou.tag.TagService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -24,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,9 +40,11 @@ public class StudySettingsController {
     private static final String DESCRIPTION = "description";
     private static final String BANNER = "banner";
     private static final String TAGS = "tags";
+    private static final String ZONES = "zones";
     private final StudyService studyService;
     private final TagService tagService;
     private final ModelMapper modelMapper;
+    private final ZoneRepository zoneRepository;
     private final TagRepository tagRepository;
     private final ObjectMapper objectMapper;
 
@@ -77,17 +83,17 @@ public class StudySettingsController {
     @GetMapping("/banner")
     public String updateBanner(@CurrentAccount Account account, Model model, @PathVariable String path) {
 
-        Study study = studyService.getUpdateStudy(account,path);
+        Study study = studyService.getUpdateStudy(account, path);
         model.addAttribute(account);
         model.addAttribute(study);
-        model.addAttribute(modelMapper.map(study,ImageForm.class));
+        model.addAttribute(modelMapper.map(study, ImageForm.class));
         return STUDY + BANNER;
     }
 
     @PostMapping("/banner")
     public String updateBanner(@CurrentAccount Account account, Model model, @PathVariable String path, ImageForm imageForm) {
 
-        Study study = studyService.getUpdateStudy(account,path);
+        Study study = studyService.getUpdateStudy(account, path);
         model.addAttribute(account);
         model.addAttribute(study);
         studyService.updateBanner(study, imageForm);
@@ -95,7 +101,7 @@ public class StudySettingsController {
     }
 
     @PostMapping("/banner/enable")
-    public String enableBanner(@CurrentAccount Account account, @PathVariable String path,RedirectAttributes redirectAttributes) {
+    public String enableBanner(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
         Study study = studyService.getUpdateStudy(account, path);
         studyService.enableBanner(study);
         redirectAttributes.addFlashAttribute("message", "변경 완료");
@@ -103,7 +109,7 @@ public class StudySettingsController {
     }
 
     @PostMapping("/banner/disable")
-    public String disableBanner(@CurrentAccount Account account, @PathVariable String path,RedirectAttributes redirectAttributes) {
+    public String disableBanner(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
         Study study = studyService.getUpdateStudy(account, path);
         studyService.disableBanner(study);
         redirectAttributes.addFlashAttribute("message", "변경 완료");
@@ -123,7 +129,7 @@ public class StudySettingsController {
         Set<String> whitelist = tagService.findByAllTags();
         model.addAttribute("whitelist", objectMapper.writeValueAsString(whitelist));
 
-        return STUDY+TAGS;
+        return STUDY + TAGS;
     }
 
     @PostMapping("/tags/add")
@@ -133,7 +139,7 @@ public class StudySettingsController {
         Study study = studyService.getStudyWithTags(account, path);
         Tag tag = tagService.getTag(tagForm.getTagTitle());
 
-        studyService.addTags(study,tag);
+        studyService.addTags(study, tag);
 
         return ResponseEntity.ok().build();
     }
@@ -148,7 +154,49 @@ public class StudySettingsController {
         if (tag == null) {
             return ResponseEntity.badRequest().build();
         }
-        studyService.RemoveTags(study,tag);
+        studyService.RemoveTags(study, tag);
+
+        return ResponseEntity.ok().build();
+    }
+
+
+    @GetMapping("/zones")
+    public String studyZones(@CurrentAccount Account account, Model model, @PathVariable String path) throws JsonProcessingException {
+
+        Study study = studyService.getStudyWithZones(account, path);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+
+        model.addAttribute("zones", study.getZones());
+        List<String> zones = zoneRepository.findAll().stream().map(Zone::toString).collect(Collectors.toList());
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(zones));
+
+        return STUDY + ZONES;
+    }
+
+
+    @PostMapping("/zones/add")
+    @ResponseBody
+    public ResponseEntity studyZonesAdd(@CurrentAccount Account account, @RequestBody ZoneForm zoneForm, @PathVariable String path) {
+
+        Study study = studyService.getStudyWithZones(account, path);
+
+        Zone zone = zoneRepository.findByCityAndLocalNameOfCity(zoneForm.getCity(), zoneForm.getLocalNameOfCity());
+        studyService.addZone(study, zone);
+
+        return ResponseEntity.ok().build();
+    }
+
+
+    @PostMapping("/zones/remove")
+    @ResponseBody
+    public ResponseEntity studyZonesRemove(@CurrentAccount Account account, @RequestBody ZoneForm zoneForm, @PathVariable String path) {
+
+        Study study = studyService.getStudyWithZones(account, path);
+
+        Zone zone = zoneRepository.findByCityAndLocalNameOfCity(zoneForm.getCity(), zoneForm.getLocalNameOfCity());
+        studyService.removeZone(study, zone);
 
         return ResponseEntity.ok().build();
     }
