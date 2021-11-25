@@ -9,8 +9,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Getter @Setter @EqualsAndHashCode(of ="id")
-@AllArgsConstructor @NoArgsConstructor @Builder
+@Getter
+@Setter
+@EqualsAndHashCode(of = "id")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @NamedEntityGraph(name = "studyGraph", attributeNodes = {
         @NamedAttributeNode("tags"),
         @NamedAttributeNode("members"),
@@ -18,9 +22,21 @@ import java.util.Set;
         @NamedAttributeNode("zones")
 })
 
+
+@NamedEntityGraph(name = "studyTagsGraph", attributeNodes = {
+        @NamedAttributeNode("managers"),
+        @NamedAttributeNode("tags")
+})
+
+@NamedEntityGraph(name = "studyZonesGraph", attributeNodes = {
+        @NamedAttributeNode("managers"),
+        @NamedAttributeNode("zones")
+})
+
 public class Study {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
     @Column(unique = true)
@@ -30,10 +46,12 @@ public class Study {
 
     private String shortDescription;
 
-    @Lob @Basic(fetch = FetchType.EAGER)
+    @Lob
+    @Basic(fetch = FetchType.EAGER)
     private String fullDescription;
 
-    @Lob @Basic(fetch = FetchType.EAGER)
+    @Lob
+    @Basic(fetch = FetchType.EAGER)
     private String image;
 
     private LocalDateTime publishedDateTime;
@@ -80,3 +98,5 @@ public class Study {
     }
 
 }
+
+

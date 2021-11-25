@@ -12,6 +12,7 @@ import com.studyforyou.dto.TagForm;
 import com.studyforyou.dto.ZoneForm;
 import com.studyforyou.repository.TagRepository;
 import com.studyforyou.repository.ZoneRepository;
+import com.studyforyou.tag.TagService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +55,8 @@ public class SettingsController {
     private final PasswordFormValidator passwordFormValidator;
     private final TagRepository tagRepository;
     private final ObjectMapper objectMapper;
+    private final TagService tagService;
+
     private final ModelMapper modelMapper;
     private final ZoneRepository zoneRepository;
 
@@ -163,7 +166,7 @@ public class SettingsController {
         Set<Tag> tags = accountService.getTags(account);
         model.addAttribute("tags", tags.stream().map(Tag::getTitle).collect(Collectors.toSet()));
 
-        List<String> list = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
+        Set<String> list = tagService.findByAllTags();
         model.addAttribute("whitelist", objectMapper.writeValueAsString(list));
 
         return SETTINGS_TAGS;
@@ -172,14 +175,8 @@ public class SettingsController {
     @PostMapping(TAGS + "/add")
     @ResponseBody
     public ResponseEntity tagsAdd(@CurrentAccount Account account, @RequestBody TagForm tagForm) {
-        String title = tagForm.getTagTitle();
 
-        Tag tag = tagRepository.findByTitle(title);
-
-        if (tag == null) {
-            tag = tagRepository.save(Tag.builder().title(tagForm.getTagTitle()).build());
-        }
-
+        Tag tag = tagService.getTag(tagForm.getTagTitle());
         accountService.addTag(account, tag);
 
         return ResponseEntity.ok().build();
