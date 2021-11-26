@@ -240,11 +240,11 @@ public class StudySettingsController {
     }
 
     @PostMapping("/recruit/start")
-    public String studyRecruitStart(@CurrentAccount Account account,Model model, @PathVariable String path, RedirectAttributes redirectAttributes) {
+    public String studyRecruitStart(@CurrentAccount Account account, Model model, @PathVariable String path, RedirectAttributes redirectAttributes) {
 
         Study study = studyService.getStudyWithManagers(account, path);
 
-        if (studyService.checkRecruitingTime(study)) {
+        if (!studyService.checkRecruitingTime(study)) {
             redirectAttributes.addFlashAttribute("message", "모집 변경은 1시간마다 가능합니다.");
             return "redirect:/study/" + getUrl(path) + "/settings/study";
         }
@@ -256,7 +256,7 @@ public class StudySettingsController {
     }
 
     @PostMapping("/recruit/stop")
-    public String studyRecruitStop(@CurrentAccount Account account,Model model, @PathVariable String path, RedirectAttributes redirectAttributes) {
+    public String studyRecruitStop(@CurrentAccount Account account, Model model, @PathVariable String path, RedirectAttributes redirectAttributes) {
 
         Study study = studyService.getStudyWithManagers(account, path);
 
@@ -291,8 +291,8 @@ public class StudySettingsController {
     }
 
     @PostMapping("/study/title")
-    public String studyPathUpdate(@CurrentAccount Account account, @Valid  TitleForm titleForm,
-                                  BindingResult bindingResult, @PathVariable String path,RedirectAttributes redirectAttributes) {
+    public String studyPathUpdate(@CurrentAccount Account account, @Valid TitleForm titleForm,
+                                  BindingResult bindingResult, @PathVariable String path, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("studyTitleError", bindingResult.getFieldError("newTitle").getDefaultMessage());
@@ -308,7 +308,7 @@ public class StudySettingsController {
     }
 
     @PostMapping("study/remove")
-    public String studyRemove(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
+    public String studyRemove(@CurrentAccount Account account, @PathVariable String path) {
 
         Study study = studyService.getStudyWithManagers(account, path);
 

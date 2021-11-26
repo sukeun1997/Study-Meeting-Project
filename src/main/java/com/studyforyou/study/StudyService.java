@@ -1,5 +1,6 @@
 package com.studyforyou.study;
 
+import com.studyforyou.account.UserAccount;
 import com.studyforyou.domain.Account;
 import com.studyforyou.domain.Study;
 import com.studyforyou.domain.Tag;
@@ -51,6 +52,7 @@ public class StudyService {
         return study;
     }
 
+
     @Transactional(readOnly = true)
     public Study getUpdateStudy(Account account, String path) {
         Study study = this.getStudy(path);
@@ -80,6 +82,7 @@ public class StudyService {
         checkStudyManager(account, study);
         return study;
     }
+
     @Transactional(readOnly = true)
     public Study getStudyWithZones(Account account, String path) {
         Study study = studyRepository.findAccountWithZonesByPath(path);
@@ -123,6 +126,14 @@ public class StudyService {
         checkStudyNull(study);
         checkStudyManager(account, study);
 
+        return study;
+    }
+
+    @Transactional(readOnly = true)
+    public Study getStudyWithMembers(String path) {
+        Study study = studyRepository.findStudyWithMembersByPath(path);
+
+        checkStudyNull(study);
         return study;
     }
 
@@ -178,6 +189,23 @@ public class StudyService {
             studyRepository.delete(study);
         } else {
             throw new RuntimeException("스터디가 공개중 이므로 삭제할 수 없습니다.");
+        }
+    }
+
+    public void joinStudy(Account account, Study study) {
+
+        if (study.isJoinable(new UserAccount(account))) {
+            study.addMember(account);
+        } else {
+            throw new RuntimeException("해당 스터디에 가입할 수 없습니다. ");
+        }
+    }
+
+    public void leaveStudy(Account account, Study study) {
+        if (study.isMember(new UserAccount(account))) {
+            study.removeMember(account);
+        } else {
+            throw new RuntimeException("해당 스터디의 맴버가 아닙니다.");
         }
     }
 }

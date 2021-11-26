@@ -31,6 +31,10 @@ import java.util.Set;
         @NamedAttributeNode("managers")
 })
 
+@NamedEntityGraph(name = "studyMembersGraph", attributeNodes = {
+        @NamedAttributeNode("members")
+})
+
 
 @Entity
 @Getter
@@ -92,7 +96,7 @@ public class Study {
 
     public boolean isJoinable(UserAccount account) {
         return this.published && this.recruiting &&
-                !this.managers.contains(account) && !this.members.contains(account);
+                !this.managers.contains(account.getAccount()) && !this.members.contains(account.getAccount());
     }
 
     public boolean isMember(UserAccount account) {
@@ -107,6 +111,15 @@ public class Study {
     public boolean isRemovable() {
         return !this.isPublished(); // TODO 모임 여부도 추가 해야함
     }
+
+    public void removeMember(Account account) {
+        this.getMembers().remove(account);
+    }
+
+    public void addMember(Account account) {
+        this.getMembers().add(account);
+    }
+
 }
 
 
