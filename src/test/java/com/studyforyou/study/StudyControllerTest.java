@@ -25,6 +25,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -154,6 +155,45 @@ class StudyControllerTest {
                 .andExpect(view().name("study/members"));
 
         assertTrue(study.getManagers().contains(account));
+    }
+
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("스터디 맴버 가입")
+    void studyJoin() throws Exception {
+
+        study.getManagers().clear();
+        studyService.studyPublish(study);
+        studyService.recruitStart(study);
+
+        mockMvc.perform(get("/study/" + study.getPath() + "/join")
+                .param("path",study.getPath()))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("study"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(view().name("study/members"));
+
+        assertTrue(study.getMembers().contains(account));
+
+    }
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("스터디 맴버 탈퇴")
+    void studyLeave() throws Exception {
+
+        study.getManagers().clear();
+        studyService.studyPublish(study);
+        studyService.recruitStart(study);
+        study.getMembers().add(account);
+
+        mockMvc.perform(get("/study/" + study.getPath() + "/leave")
+                        .param("path",study.getPath()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
+
+        assertTrue(!study.getMembers().contains(account));
 
     }
 }
