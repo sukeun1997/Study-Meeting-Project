@@ -18,6 +18,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 @Service
@@ -161,5 +163,13 @@ public class StudyService {
             return true;
         }
         return study.getRecruitingUpdatedDateTime().isBefore(LocalDateTime.now().minusHours(1));
+    }
+
+    public void updatePath(Study study, String newPath) {
+        study.setPath(URLEncoder.encode(newPath, StandardCharsets.UTF_8));
+    }
+
+    public void updateTitle(Study study, String newTitle) {
+        study.setTitle(newTitle);
     }
 }

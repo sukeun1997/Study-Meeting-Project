@@ -8,13 +8,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-@Getter
-@Setter
-@EqualsAndHashCode(of = "id")
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+
 @NamedEntityGraph(name = "studyAllGraph", attributeNodes = {
         @NamedAttributeNode("tags"),
         @NamedAttributeNode("members"),
@@ -36,6 +30,15 @@ import java.util.Set;
 @NamedEntityGraph(name = "studyManagersGraph", attributeNodes = {
         @NamedAttributeNode("managers")
 })
+
+
+@Entity
+@Getter
+@Setter
+@EqualsAndHashCode(of = "id")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Study {
 
     @Id
@@ -71,16 +74,16 @@ public class Study {
 
     private boolean useBanner;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Account> managers = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Account> members = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Zone> zones = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Tag> tags = new HashSet<>();
 
     public void addMangers(Account byNickname) {
