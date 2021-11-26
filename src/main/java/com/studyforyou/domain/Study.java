@@ -103,6 +103,10 @@ public class Study {
         return this.managers.contains(account.getAccount());
     }
 
+
+    public boolean isRemovable() {
+        return !this.isPublished(); // TODO 모임 여부도 추가 해야함
+    }
 }
 
 

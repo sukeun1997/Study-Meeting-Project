@@ -172,4 +172,12 @@ public class StudyService {
     public void updateTitle(Study study, String newTitle) {
         study.setTitle(newTitle);
     }
+
+    public void removeStudy(Study study) {
+        if (study.isRemovable()) {
+            studyRepository.delete(study);
+        } else {
+            throw new RuntimeException("스터디가 공개중 이므로 삭제할 수 없습니다.");
+        }
+    }
 }
