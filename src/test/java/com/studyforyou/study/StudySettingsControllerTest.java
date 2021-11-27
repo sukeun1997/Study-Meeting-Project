@@ -79,19 +79,33 @@ class StudySettingsControllerTest extends StudyControllerTest {
     }
 
     @Test
-    void updateBanner() {
+    @WithAccount("test")
+    @DisplayName("배너 이미지 변경하기")
+    void updateBanner() throws Exception {
+        mockMvc.perform(post(SettingURL(study.getPath()) + "/banner")
+                        .with(csrf())
+                        .param("image", "image"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("study"))
+                .andExpect(view().name("study/banner"));
+
+
+        assertTrue(!study.getImage().isEmpty());
+
     }
 
     @Test
-    void testUpdateBanner() {
-    }
+    @WithAccount("test")
+    @DisplayName("배너 이미지 사용하기")
+    void enableBanner() throws Exception {
+        mockMvc.perform(post(SettingURL(study.getPath()) + "/banner/enable")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(flash().attributeExists("message"));
 
-    @Test
-    void enableBanner() {
-    }
 
-    @Test
-    void disableBanner() {
+        assertTrue(study.isUseBanner());
     }
 
     @Test
