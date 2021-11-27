@@ -3,9 +3,13 @@ package com.studyforyou.study;
 import com.studyforyou.WithAccount;
 import com.studyforyou.domain.Account;
 import com.studyforyou.domain.Study;
+import com.studyforyou.domain.Tag;
 import com.studyforyou.dto.StudyForm;
+import com.studyforyou.dto.TagForm;
 import com.studyforyou.repository.AccountRepository;
 import com.studyforyou.repository.StudyRepository;
+import com.studyforyou.repository.TagRepository;
+import com.studyforyou.tag.TagService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +38,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @TestPropertySource(locations = "classpath:application-test.properties")
 class StudySettingsControllerTest extends StudyControllerTest {
+
+    @Autowired TagRepository tagRepository;
+    @Autowired TagService tagService;
+
 
     @Test
     @DisplayName("스터디 소개 수정 폼 - 권한 없느 접근자")
@@ -109,17 +118,64 @@ class StudySettingsControllerTest extends StudyControllerTest {
     }
 
     @Test
-    void studyTags() {
+    @WithAccount("test")
+    @DisplayName("스터디 태그 추가하기")
+    void studyTagsAdd() throws Exception {
+
+        TagForm tagForm = new TagForm();
+        tagForm.setTagTitle("하자");
+        mockMvc.perform(post(SettingURL(study.getPath()) + "/tags/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tagForm))
+                .with(csrf()))
+                .andExpect(status().isOk());
+
+        assertNotNull(study.getTags());
+        assertNotNull(tagRepository.findByTitle(tagForm.getTagTitle()));
     }
 
     @Test
-    void studyTagsAdd() {
+    @WithAccount("test")
+    @DisplayName("스터디 태그 삭제하기")
+    void studyTagsRemove() throws Exception {
+
+        TagForm tagForm = new TagForm();
+        tagForm.setTagTitle("하자");
+
+        Tag tag = tagService.getTag(tagForm.getTagTitle());
+
+        studyService.addTags(study, tag);
+
+        mockMvc.perform(post(SettingURL(study.getPath()) + "/tags/remove")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tagForm))
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+       assertTrue(!study.getTags().contains(tag));
+
     }
 
     @Test
-    void studyTagsRemove() {
-    }
+    @WithAccount("test")
+    @DisplayName("스터디 태그 추가후 태그 폼")
+    void studyTags_Added() throws Exception {
+        TagForm tagForm = new TagForm();
+        tagForm.setTagTitle("하자");
 
+        Tag tag = tagService.getTag(tagForm.getTagTitle());
+
+        studyService.addTags(study, tag);
+
+        mockMvc.perform(get(SettingURL(study.getPath()) + "/tags"))
+                .andExpect(model().attributeExists("whitelist"))
+                .andExpect(model().attributeExists("tags"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("study"))
+                .andExpect(status().isOk());
+
+        assertEquals(tagService.findByAllTags().size(),1);
+    }
     @Test
     void studyZones() {
     }

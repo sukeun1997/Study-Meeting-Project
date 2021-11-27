@@ -1,5 +1,6 @@
 package com.studyforyou.study;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyforyou.WithAccount;
 import com.studyforyou.domain.Account;
 import com.studyforyou.domain.Study;
@@ -44,7 +45,10 @@ class StudyControllerTest {
     AccountRepository accountRepository;
 
     @Autowired
-    private StudyService studyService;
+    StudyService studyService;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     Study study;
     Account account;
