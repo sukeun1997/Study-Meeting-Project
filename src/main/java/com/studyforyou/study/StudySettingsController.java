@@ -291,7 +291,7 @@ public class StudySettingsController {
     }
 
     @PostMapping("/study/title")
-    public String studyPathUpdate(@CurrentAccount Account account, @Valid TitleForm titleForm,
+    public String studyTitleUpdate(@CurrentAccount Account account, @Valid TitleForm titleForm,
                                   BindingResult bindingResult, @PathVariable String path, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
