@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 
 @Service
@@ -20,8 +21,13 @@ public class EventService {
 
     public Event createEvent(Event event, Account account, Study study) {
         event.setStudy(study);
-        event.setCreateBy(account);
+        event.setCreatedBy(account);
         event.setCreatedDateTime(LocalDateTime.now());
         return eventRepository.save(event);
+    }
+
+    @Transactional(readOnly = true)
+    public Event getEvent(Long eventId) {
+        return eventRepository.findById(eventId).orElseThrow(EntityNotFoundException::new);
     }
 }

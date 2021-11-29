@@ -32,7 +32,7 @@ public class EventController  {
     }
 
     @GetMapping("/new-event")
-    public String eventView(@CurrentAccount Account account, Model model, @PathVariable String path) {
+    public String createEventView(@CurrentAccount Account account, Model model, @PathVariable String path) {
 
         Study study = studyService.getStudyWithManagers(account, path);
 
@@ -57,5 +57,18 @@ public class EventController  {
 
         Event event = eventService.createEvent(modelMapper.map(eventForm, Event.class), account, study);
         return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
+    }
+
+    @GetMapping("/events/{eventId}")
+    public String eventView(@CurrentAccount Account account, @PathVariable Long eventId, @PathVariable String path, Model model) {
+
+        Study study = studyService.getStudy(path);
+        Event event = eventService.getEvent(eventId);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+        model.addAttribute(event);
+
+        return "event/view";
     }
 }

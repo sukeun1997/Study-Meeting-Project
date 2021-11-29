@@ -1,6 +1,7 @@
 package com.studyforyou.domain;
 
 
+import com.studyforyou.account.UserAccount;
 import com.studyforyou.constant.EventType;
 import lombok.*;
 
@@ -8,6 +9,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -26,7 +28,7 @@ public class Event {
     private Study study;
 
     @ManyToOne
-    private Account createBy;
+    private Account createdBy;
 
     @Column(nullable = false)
     private String title;
@@ -51,5 +53,45 @@ public class Event {
     @OneToMany(mappedBy = "event")
     private List<Enrollment> enrollments = new ArrayList<>();
 
+    public boolean isEnrollableFor(UserAccount userAccount) {
+
+        if (!isNotEndEnrollmentTime() && !isEnrollment(userAccount)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isDisenrollableFor(UserAccount userAccount) {
+
+        if (!isNotEndEnrollmentTime() && isEnrollment(userAccount)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isAttended(UserAccount userAccount) {
+
+        Optional<Enrollment> optional = enrollments.stream().filter(enrollment -> enrollment.containAccount(userAccount.getAccount())).findAny();
+
+        if (optional.isPresent()) {
+            return optional.get().isAttended();
+        }
+        return false;
+    }
+
+    private boolean isNotEndEnrollmentTime() {
+        return endEnrollmentDateTime.isBefore(LocalDateTime.now());
+    }
+
+    private boolean isEnrollment(UserAccount userAccount) {
+        return enrollments.stream().anyMatch(enrollment -> enrollment.containAccount(userAccount.getAccount()));
+    }
+
+    public boolean isAcceptable(Enrollment enrollment) {
+        return !enrollment.isAccepted();
+    }
+    public boolean isRejectable(Enrollment enrollment) {
+        return enrollment.isAccepted();
+    }
 
 }
