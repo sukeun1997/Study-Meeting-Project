@@ -104,8 +104,18 @@ public class Event {
     public boolean isAcceptable(Enrollment enrollment) {
         return !enrollment.isAccepted();
     }
+
     public boolean isRejectable(Enrollment enrollment) {
         return enrollment.isAccepted();
+    }
+
+    public boolean isAbleToAccept() {
+        return getEventType() == EventType.FCFS && numberOfRemainSpots() > 0;
+    }
+
+    public void addEnrollment(Enrollment enrollment) {
+        enrollment.setEvent(this);
+        enrollments.add(enrollment);
     }
 
 }

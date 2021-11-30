@@ -30,6 +30,6 @@ public class Enrollment {
     private boolean attended; // 참석 여부부
 
     public boolean containAccount(Account account) {
-        return account.equals(account);
+        return this.account.equals(account);
     }
 }

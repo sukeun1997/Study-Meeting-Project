@@ -52,6 +52,13 @@ public class StudyService {
         return study;
     }
 
+    @Transactional(readOnly = true)
+    public Study getOnlyStudyByPath(String path) {
+        Study study = studyRepository.findOnlyByPath(path);
+
+        checkStudyNull(study);
+        return study;
+    }
 
     @Transactional(readOnly = true)
     public Study getUpdateStudy(Account account, String path) {

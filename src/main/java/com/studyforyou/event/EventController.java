@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/study/{path}")
-public class EventController  {
+public class EventController {
 
     private final StudyService studyService;
     private final EventFormValidator eventFormValidator;
@@ -79,7 +79,7 @@ public class EventController  {
     }
 
     @GetMapping("/events")
-    public String eventList(@CurrentAccount Account account,Model model, @PathVariable String path) {
+    public String eventList(@CurrentAccount Account account, Model model, @PathVariable String path) {
         Study study = studyService.getStudy(path);
 
         model.addAttribute(account);
@@ -90,8 +90,8 @@ public class EventController  {
         Set<Event> oldEvents = allEvents.stream().filter(event -> event.getEndDateTime().isBefore(LocalDateTime.now())).collect(Collectors.toSet());
         //TODO newEvents, oldEvents Foreach 를 사용하여 조건에 따라 리스트에 추가하는식으로 리팩토링
 
-        model.addAttribute("newEvents",newEvents);
-        model.addAttribute("oldEvents",oldEvents);
+        model.addAttribute("newEvents", newEvents);
+        model.addAttribute("oldEvents", oldEvents);
 
         return "study/events";
     }
@@ -105,7 +105,7 @@ public class EventController  {
         model.addAttribute(study);
         Event event = eventService.getEvent(eventId);
         model.addAttribute(event);
-        model.addAttribute(modelMapper.map(event,EventForm.class));
+        model.addAttribute(modelMapper.map(event, EventForm.class));
 
         return "event/updateform";
     }
@@ -126,7 +126,7 @@ public class EventController  {
         }
 
         event.setEventType(event.getEventType());
-        eventService.updateForm(event,eventForm);
+        eventService.updateForm(event, eventForm);
 
 
         return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
@@ -135,10 +135,22 @@ public class EventController  {
     @DeleteMapping("/events/{eventId}")
     public String eventDelete(@CurrentAccount Account account, @PathVariable Long eventId, @PathVariable String path) {
 
-        Study study = studyService.getStudyWithManagers(account,path);
+        Study study = studyService.getStudyWithManagers(account, path);
         eventService.deleteEvent(eventId);
-        return "redirect:/study/" + study.getEncodedPath()+"/events";
+        return "redirect:/study/" + study.getEncodedPath() + "/events";
 
     }
+
+    @PostMapping("/events/{eventId}/enroll")
+    public String eventEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path) {
+
+        Study study = studyService.getOnlyStudyByPath(path);
+        eventService.enrollEvent(account, event);
+
+
+        return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
+    }
+
+    // TODO 취소
 
 }

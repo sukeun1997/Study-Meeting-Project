@@ -1,9 +1,12 @@
 package com.studyforyou.event;
 
+import com.studyforyou.constant.EventType;
 import com.studyforyou.domain.Account;
+import com.studyforyou.domain.Enrollment;
 import com.studyforyou.domain.Event;
 import com.studyforyou.domain.Study;
 import com.studyforyou.dto.EventForm;
+import com.studyforyou.repository.EnrollmentRepository;
 import com.studyforyou.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -22,6 +25,7 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final ModelMapper modelMapper;
+    private final EnrollmentRepository enrollmentRepository;
 
     public Event createEvent(Event event, Account account, Study study) {
         event.setStudy(study);
@@ -51,5 +55,19 @@ public class EventService {
 
         // TODO event 에 해당하는 enrollment 정보가 있을시 enrollment 정보도 같이 삭제되는지 확인하기기
     }
+
+    public void enrollEvent(Account account, Event event) {
+
+        if (!enrollmentRepository.existsByEventAndAccount(event, account)) {
+            Enrollment enrollment = new Enrollment();
+            enrollment.setAccount(account);
+            enrollment.setAccepted(event.isAbleToAccept());
+            enrollment.setEnrolledAt(LocalDateTime.now());
+            event.addEnrollment(enrollment);
+            enrollmentRepository.save(enrollment);
+        }
+
+    }
+
 }
 
