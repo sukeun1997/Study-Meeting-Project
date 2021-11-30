@@ -3,8 +3,10 @@ package com.studyforyou.event;
 import com.studyforyou.domain.Account;
 import com.studyforyou.domain.Event;
 import com.studyforyou.domain.Study;
+import com.studyforyou.dto.EventForm;
 import com.studyforyou.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 public class EventService {
 
     private final EventRepository eventRepository;
-
+    private final ModelMapper modelMapper;
 
     public Event createEvent(Event event, Account account, Study study) {
         event.setStudy(study);
@@ -38,4 +40,9 @@ public class EventService {
         return eventRepository.findAll().stream().collect(Collectors.toSet());
     }
 
+    public void updateForm(Event event, EventForm eventForm) {
+        modelMapper.map(eventForm, event);
+
+        // TODO 참여자 제한 수가 증가했을시 참여 대기중인 사람 확정으로 변경
+    }
 }

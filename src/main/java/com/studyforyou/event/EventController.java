@@ -93,4 +93,41 @@ public class EventController  {
 
         return "study/events";
     }
+
+    @GetMapping("/events/{eventId}/edit")
+    public String eventEdit(@CurrentAccount Account account, Model model, @PathVariable String eventId, @PathVariable String path) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+        Event event = eventService.getEvent(Long.valueOf(eventId));
+        model.addAttribute(event);
+        model.addAttribute(modelMapper.map(event,EventForm.class));
+
+        return "event/updateform";
+    }
+
+    @PostMapping("/events/{eventId}/edit")
+    public String eventEdit(@CurrentAccount Account account, Model model, @PathVariable String path,
+                            @Valid EventForm eventForm, BindingResult bindingResult, @PathVariable String eventId) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+        Event event = eventService.getEvent(Long.valueOf(eventId));
+        eventFormValidator.isValidEnrollmentSize(eventForm, event, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute(account);
+            model.addAttribute(study);
+            model.addAttribute(event);
+            return "event/updateform";
+        }
+
+        event.setEventType(event.getEventType());
+        eventService.updateForm(event,eventForm);
+
+
+        return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
+    }
+
 }

@@ -1,11 +1,14 @@
 package com.studyforyou.event;
 
+import com.studyforyou.domain.Event;
 import com.studyforyou.dto.EventForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 
 @Component
@@ -43,6 +46,14 @@ public class EventFormValidator implements Validator {
     }
 
     private boolean isNotValidStartTime(EventForm eventForm) {
-        return eventForm.getStartDateTime().isBefore(LocalDateTime.now());
+        return eventForm.getStartDateTime().isBefore(eventForm.getStartDateTime());
+    }
+
+
+    public void isValidEnrollmentSize(EventForm eventForm, Event event, BindingResult bindingResult) {
+        if (eventForm.getLimitOfEnrollments() < event.getAcceptedCount()) {
+            bindingResult.rejectValue("limitOfEnrollments","wrong number", "확정된 참여자 수 보다 값이 더 커야합니다.");
+        }
+        // TODO 참여신청 구현후 제대로 작동하는지 확인
     }
 }

@@ -94,7 +94,11 @@ public class Event {
     }
 
     public int numberOfRemainSpots() {
-        return limitOfEnrollments - (int) enrollments.stream().map(Enrollment::isAccepted).count();
+        return limitOfEnrollments - (int) getAcceptedCount();
+    }
+
+    public long getAcceptedCount() {
+        return enrollments.stream().map(Enrollment::isAccepted).count();
     }
 
     public boolean isAcceptable(Enrollment enrollment) {
