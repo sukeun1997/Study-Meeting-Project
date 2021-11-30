@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -30,4 +32,10 @@ public class EventService {
     public Event getEvent(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(EntityNotFoundException::new);
     }
+
+    @Transactional(readOnly = true)
+    public Set<Event> getAllEvents() {
+        return eventRepository.findAll().stream().collect(Collectors.toSet());
+    }
+
 }

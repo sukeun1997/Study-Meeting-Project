@@ -10,6 +10,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+@NamedEntityGraph(name = "eventJoin", attributeNodes = {
+        @NamedAttributeNode("enrollments")
+})
+
 
 @Entity
 @Getter
@@ -85,6 +91,10 @@ public class Event {
 
     private boolean isEnrollment(UserAccount userAccount) {
         return enrollments.stream().anyMatch(enrollment -> enrollment.containAccount(userAccount.getAccount()));
+    }
+
+    public int numberOfRemainSpots() {
+        return limitOfEnrollments - (int) enrollments.stream().map(Enrollment::isAccepted).count();
     }
 
     public boolean isAcceptable(Enrollment enrollment) {

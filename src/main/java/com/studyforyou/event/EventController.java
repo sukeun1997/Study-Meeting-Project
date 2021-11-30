@@ -5,6 +5,7 @@ import com.studyforyou.domain.Account;
 import com.studyforyou.domain.Event;
 import com.studyforyou.domain.Study;
 import com.studyforyou.dto.EventForm;
+import com.studyforyou.repository.EventRepository;
 import com.studyforyou.study.StudyService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -15,6 +16,9 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -25,6 +29,7 @@ public class EventController  {
     private final EventFormValidator eventFormValidator;
     private final EventService eventService;
     private final ModelMapper modelMapper;
+    private final EventRepository eventRepository;
 
     @InitBinder("eventForm")
     public void initBinder(WebDataBinder webDataBinder) {
@@ -70,5 +75,22 @@ public class EventController  {
         model.addAttribute(event);
 
         return "event/view";
+    }
+
+    @GetMapping("/events")
+    public String eventList(@CurrentAccount Account account,Model model, @PathVariable String path) {
+        Study study = studyService.getStudy(path);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+
+        Set<Event> allEvents = eventRepository.findByStudyOrderByStartDateTime(study);
+        Set<Event> newEvents = allEvents.stream().filter(event -> event.getEndDateTime().isAfter(LocalDateTime.now())).collect(Collectors.toSet());
+        Set<Event> oldEvents = allEvents.stream().filter(event -> event.getEndDateTime().isBefore(LocalDateTime.now())).collect(Collectors.toSet());
+
+        model.addAttribute("newEvents",newEvents);
+        model.addAttribute("oldEvents",oldEvents);
+
+        return "study/events";
     }
 }
