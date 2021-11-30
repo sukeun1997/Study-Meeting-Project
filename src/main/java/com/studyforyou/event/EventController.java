@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -87,6 +88,7 @@ public class EventController  {
         Set<Event> allEvents = eventRepository.findByStudyOrderByStartDateTime(study);
         Set<Event> newEvents = allEvents.stream().filter(event -> event.getEndDateTime().isAfter(LocalDateTime.now())).collect(Collectors.toSet());
         Set<Event> oldEvents = allEvents.stream().filter(event -> event.getEndDateTime().isBefore(LocalDateTime.now())).collect(Collectors.toSet());
+        //TODO newEvents, oldEvents Foreach 를 사용하여 조건에 따라 리스트에 추가하는식으로 리팩토링
 
         model.addAttribute("newEvents",newEvents);
         model.addAttribute("oldEvents",oldEvents);
@@ -95,13 +97,13 @@ public class EventController  {
     }
 
     @GetMapping("/events/{eventId}/edit")
-    public String eventEdit(@CurrentAccount Account account, Model model, @PathVariable String eventId, @PathVariable String path) {
+    public String eventEdit(@CurrentAccount Account account, Model model, @PathVariable Long eventId, @PathVariable String path) {
 
         Study study = studyService.getStudyWithManagers(account, path);
 
         model.addAttribute(account);
         model.addAttribute(study);
-        Event event = eventService.getEvent(Long.valueOf(eventId));
+        Event event = eventService.getEvent(eventId);
         model.addAttribute(event);
         model.addAttribute(modelMapper.map(event,EventForm.class));
 
@@ -110,10 +112,10 @@ public class EventController  {
 
     @PostMapping("/events/{eventId}/edit")
     public String eventEdit(@CurrentAccount Account account, Model model, @PathVariable String path,
-                            @Valid EventForm eventForm, BindingResult bindingResult, @PathVariable String eventId) {
+                            @Valid EventForm eventForm, BindingResult bindingResult, @PathVariable Long eventId) {
 
         Study study = studyService.getStudyWithManagers(account, path);
-        Event event = eventService.getEvent(Long.valueOf(eventId));
+        Event event = eventService.getEvent(eventId);
         eventFormValidator.isValidEnrollmentSize(eventForm, event, bindingResult);
 
         if (bindingResult.hasErrors()) {
@@ -128,6 +130,15 @@ public class EventController  {
 
 
         return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
+    }
+
+    @DeleteMapping("/events/{eventId}")
+    public String eventDelete(@CurrentAccount Account account, @PathVariable Long eventId, @PathVariable String path) {
+
+        Study study = studyService.getStudyWithManagers(account,path);
+        eventService.deleteEvent(eventId);
+        return "redirect:/study/" + study.getEncodedPath()+"/events";
+
     }
 
 }

@@ -12,6 +12,7 @@ import java.util.Set;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
 
-    @EntityGraph(value = "eventJoin", type = EntityGraph.EntityGraphType.LOAD)
+//    @EntityGraph(value = "eventJoin", type = EntityGraph.EntityGraphType.LOAD)
+    @EntityGraph(attributePaths = {"enrollments"})
     Set<Event> findByStudyOrderByStartDateTime(Study study);
 }

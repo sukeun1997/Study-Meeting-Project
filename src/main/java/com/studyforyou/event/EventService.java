@@ -45,4 +45,11 @@ public class EventService {
 
         // TODO 참여자 제한 수가 증가했을시 참여 대기중인 사람 확정으로 변경
     }
+
+    public void deleteEvent(Long eventId) {
+        eventRepository.deleteById(Long.valueOf(eventId));
+
+        // TODO event 에 해당하는 enrollment 정보가 있을시 enrollment 정보도 같이 삭제되는지 확인하기기
+    }
 }
+
