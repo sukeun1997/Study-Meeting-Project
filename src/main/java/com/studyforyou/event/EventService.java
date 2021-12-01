@@ -50,10 +50,11 @@ public class EventService {
         // TODO 참여자 제한 수가 증가했을시 참여 대기중인 사람 확정으로 변경
     }
 
-    public void deleteEvent(Long eventId) {
-        eventRepository.deleteById(Long.valueOf(eventId));
+    public void deleteEvent(Event event) {
+        eventRepository.delete(event);
 
-        // TODO event 에 해당하는 enrollment 정보가 있을시 enrollment 정보도 같이 삭제되는지 확인하기기
+        // TODO event 에 해당하는 enrollment 정보가 있을시 enrollment 정보도 같이 삭제되는지 확인하기 -> 삭제 안되서 CASCADE 처리함 추후 다르게 처리하는지 확인하기
+
     }
 
     public void enrollEvent(Account account, Event event) {
@@ -69,5 +70,11 @@ public class EventService {
 
     }
 
+    public void disenrollEvent(Account account, Event event) {
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, account);
+        if (enrollment != null) {
+            enrollmentRepository.delete(enrollment);
+        }
+    }
 }
 

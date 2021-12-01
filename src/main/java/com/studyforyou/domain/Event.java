@@ -30,10 +30,10 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventType eventType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Study study;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Account createdBy;
 
     @Column(nullable = false)
@@ -56,7 +56,7 @@ public class Event {
 
     private Integer limitOfEnrollments;
 
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "event",cascade = CascadeType.REMOVE)
     private List<Enrollment> enrollments = new ArrayList<>();
 
     public boolean isEnrollableFor(UserAccount userAccount) {

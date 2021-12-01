@@ -68,7 +68,7 @@ public class EventController {
     @GetMapping("/events/{eventId}")
     public String eventView(@CurrentAccount Account account, @PathVariable Long eventId, @PathVariable String path, Model model) {
 
-        Study study = studyService.getStudy(path);
+        Study study = studyService.getStudy(path); // TODO TAG,ZONE,MEMBERS 불필요
         Event event = eventService.getEvent(eventId);
 
         model.addAttribute(account);
@@ -133,10 +133,10 @@ public class EventController {
     }
 
     @DeleteMapping("/events/{eventId}")
-    public String eventDelete(@CurrentAccount Account account, @PathVariable Long eventId, @PathVariable String path) {
+    public String eventDelete(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path) {
 
         Study study = studyService.getStudyWithManagers(account, path);
-        eventService.deleteEvent(eventId);
+        eventService.deleteEvent(event);
         return "redirect:/study/" + study.getEncodedPath() + "/events";
 
     }
@@ -151,6 +151,13 @@ public class EventController {
         return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
     }
 
-    // TODO 취소
+    @PostMapping("/events/{eventId}/disenroll")
+    public String eventDisEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path) {
+
+        Study study = studyService.getOnlyStudyByPath(path);
+        eventService.disenrollEvent(account, event);
+
+        return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
+    }
 
 }
