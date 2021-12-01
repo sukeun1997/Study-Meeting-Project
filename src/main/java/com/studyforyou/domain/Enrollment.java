@@ -17,7 +17,7 @@ public class Enrollment {
     @ManyToOne(fetch = FetchType.LAZY)
     private Event event;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER) // TODO LAZY , EAGER 차이 비교하기
     private Account account;
 
     private LocalDateTime enrolledAt; // 신청 시간

@@ -80,5 +80,6 @@ public class EventService {
             //TODO 첫번째 대기자 확정
         }
     }
+
 }
 

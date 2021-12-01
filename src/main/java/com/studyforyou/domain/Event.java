@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
+@Builder @NoArgsConstructor @AllArgsConstructor
 public class Event {
 
     @Id
@@ -120,22 +121,26 @@ public class Event {
     }
 
 
-    private List<Enrollment> getWaitingList() {
+    public List<Enrollment> getWaitingList() {
         return enrollments.stream().filter(enrollment -> !enrollment.isAccepted()).collect(Collectors.toList());
     }
 
     public void acceptWaitingEnrollment() {
+
         if (isAbleToAccept()) {
             List<Enrollment> waitingList = getWaitingList();
             int count = Math.min(numberOfRemainSpots(), waitingList.size());
-            waitingList.subList(0, numberOfRemainSpots()).forEach(enrollment -> enrollment.setAccepted(true));
+            waitingList.subList(0, count).forEach(enrollment -> enrollment.setAccepted(true));
         }
+
     }
 
     public void acceptNextWaitingEnrollment() {
         if (isAbleToAccept()) {
-            Enrollment enrollment = getWaitingList().get(0);
-            enrollment.setAccepted(true);
+            if (!getWaitingList().isEmpty()) {
+                Enrollment enrollment = getWaitingList().get(0);
+                enrollment.setAccepted(true);
+            }
         }
     }
 
@@ -143,4 +148,6 @@ public class Event {
         enrollments.remove(enrollment);
         enrollment.setEvent(null);
     }
+
+
 }

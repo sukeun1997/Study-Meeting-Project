@@ -32,26 +32,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 @TestPropertySource(locations = "classpath:application-test.properties")
-class StudyControllerTest {
+public class StudyControllerTest {
 
     public static final String NEW_STUDY = "/new-study";
     @Autowired
-    MockMvc mockMvc;
+    public MockMvc mockMvc;
 
     @Autowired
-    StudyRepository studyRepository;
+    public StudyRepository studyRepository;
 
     @Autowired
-    AccountRepository accountRepository;
+    public AccountRepository accountRepository;
 
     @Autowired
-    StudyService studyService;
+    public StudyService studyService;
 
     @Autowired
-    ObjectMapper objectMapper;
+    public ObjectMapper objectMapper;
 
-    Study study;
-    Account account;
+    public Study study;
+    public Account account;
 
     @BeforeEach
     private void beforeEach() {
