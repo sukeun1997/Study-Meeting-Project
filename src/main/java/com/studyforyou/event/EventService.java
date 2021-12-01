@@ -1,6 +1,5 @@
 package com.studyforyou.event;
 
-import com.studyforyou.constant.EventType;
 import com.studyforyou.domain.Account;
 import com.studyforyou.domain.Enrollment;
 import com.studyforyou.domain.Event;
@@ -47,6 +46,8 @@ public class EventService {
     public void updateForm(Event event, EventForm eventForm) {
         modelMapper.map(eventForm, event);
 
+        event.acceptWaitingEnrollment();
+
         // TODO 참여자 제한 수가 증가했을시 참여 대기중인 사람 확정으로 변경
     }
 
@@ -73,7 +74,10 @@ public class EventService {
     public void disenrollEvent(Account account, Event event) {
         Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, account);
         if (enrollment != null) {
+            event.removeEnrollment(enrollment);
             enrollmentRepository.delete(enrollment);
+            event.acceptNextWaitingEnrollment();
+            //TODO 첫번째 대기자 확정
         }
     }
 }

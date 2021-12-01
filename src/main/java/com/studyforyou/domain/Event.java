@@ -57,6 +57,7 @@ public class Event {
     private Integer limitOfEnrollments;
 
     @OneToMany(mappedBy = "event",cascade = CascadeType.REMOVE)
+    @OrderBy(value = "enrolledAt")
     private List<Enrollment> enrollments = new ArrayList<>();
 
     public boolean isEnrollableFor(UserAccount userAccount) {
@@ -98,7 +99,7 @@ public class Event {
     }
 
     public long getAcceptedCount() {
-        return enrollments.stream().map(Enrollment::isAccepted).count();
+        return enrollments.stream().filter(enrollment -> enrollment.isAccepted()).count();
     }
 
     public boolean isAcceptable(Enrollment enrollment) {
@@ -118,4 +119,28 @@ public class Event {
         enrollments.add(enrollment);
     }
 
+
+    private List<Enrollment> getWaitingList() {
+        return enrollments.stream().filter(enrollment -> !enrollment.isAccepted()).collect(Collectors.toList());
+    }
+
+    public void acceptWaitingEnrollment() {
+        if (isAbleToAccept()) {
+            List<Enrollment> waitingList = getWaitingList();
+            int count = Math.min(numberOfRemainSpots(), waitingList.size());
+            waitingList.subList(0, numberOfRemainSpots()).forEach(enrollment -> enrollment.setAccepted(true));
+        }
+    }
+
+    public void acceptNextWaitingEnrollment() {
+        if (isAbleToAccept()) {
+            Enrollment enrollment = getWaitingList().get(0);
+            enrollment.setAccepted(true);
+        }
+    }
+
+    public void removeEnrollment(Enrollment enrollment) {
+        enrollments.remove(enrollment);
+        enrollment.setEvent(null);
+    }
 }

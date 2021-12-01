@@ -124,8 +124,7 @@ public class EventController {
             model.addAttribute(event);
             return "event/updateform";
         }
-
-        event.setEventType(event.getEventType());
+        eventForm.setEventType(event.getEventType());
         eventService.updateForm(event, eventForm);
 
 
