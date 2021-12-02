@@ -104,7 +104,7 @@ public class Event {
     }
 
     public boolean isAcceptable(Enrollment enrollment) {
-        return !enrollment.isAccepted();
+        return !enrollment.isAccepted() && numberOfRemainSpots() > 0;
     }
 
     public boolean isRejectable(Enrollment enrollment) {

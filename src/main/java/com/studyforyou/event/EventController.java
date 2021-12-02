@@ -69,7 +69,7 @@ public class EventController {
     @GetMapping("/events/{eventId}")
     public String eventView(@CurrentAccount Account account, @PathVariable Long eventId, @PathVariable String path, Model model) {
 
-        Study study = studyService.getStudy(path); // TODO TAG,ZONE,MEMBERS 불필요
+        Study study = studyService.getEventStudy(path); // TODO TAG,ZONE,MEMBERS 불필요
         Event event = eventService.getEvent(eventId);
 
         model.addAttribute(account);
@@ -98,13 +98,12 @@ public class EventController {
     }
 
     @GetMapping("/events/{eventId}/edit")
-    public String eventEdit(@CurrentAccount Account account, Model model, @PathVariable Long eventId, @PathVariable String path) {
+    public String eventEdit(@CurrentAccount Account account, Model model, @PathVariable("eventId") Event event, @PathVariable String path) {
 
         Study study = studyService.getStudyWithManagers(account, path);
 
         model.addAttribute(account);
         model.addAttribute(study);
-        Event event = eventService.getEvent(eventId);
         model.addAttribute(event);
         model.addAttribute(modelMapper.map(event, EventForm.class));
 
@@ -113,10 +112,9 @@ public class EventController {
 
     @PostMapping("/events/{eventId}/edit")
     public String eventEdit(@CurrentAccount Account account, Model model, @PathVariable String path,
-                            @Valid EventForm eventForm, BindingResult bindingResult, @PathVariable Long eventId) {
+                            @Valid EventForm eventForm, BindingResult bindingResult, @PathVariable("eventId") Event event) {
 
         Study study = studyService.getStudyWithManagers(account, path);
-        Event event = eventService.getEvent(eventId);
         eventFormValidator.isValidEnrollmentSize(eventForm, event, bindingResult);
 
         if (bindingResult.hasErrors()) {

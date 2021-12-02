@@ -53,6 +53,14 @@ public class StudyService {
     }
 
     @Transactional(readOnly = true)
+    public Study getEventStudy(String path) {
+        Study study = studyRepository.findStudyWithMangersByPath(path);
+
+        checkStudyNull(study);
+        return study;
+    }
+
+    @Transactional(readOnly = true)
     public Study getOnlyStudyByPath(String path) {
         Study study = studyRepository.findOnlyByPath(path);
 
