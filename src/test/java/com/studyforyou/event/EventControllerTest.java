@@ -201,11 +201,13 @@ class EventControllerTest extends StudyControllerTest {
         assertEquals(event.getWaitingList().size(), 0);
     }
 
-        private void createEnroll(Event event,int count) {
+    private void createEnroll(Event event,int count) {
+
         for (int i = 0; i <count; i++) {
             Account account1 = createAccount();
             eventService.enrollEvent(account1, event);
         }
+
     }
 
 

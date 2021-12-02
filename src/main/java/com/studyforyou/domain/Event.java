@@ -63,7 +63,7 @@ public class Event {
 
     public boolean isEnrollableFor(UserAccount userAccount) {
 
-        if (!isNotEndEnrollmentTime() && !isEnrollment(userAccount)) {
+        if (!isNotEndEnrollmentTime() && !isEnrollment(userAccount) && !isAttended(userAccount)) {
             return true;
         }
         return false;
@@ -71,7 +71,7 @@ public class Event {
 
     public boolean isDisenrollableFor(UserAccount userAccount) {
 
-        if (!isNotEndEnrollmentTime() && isEnrollment(userAccount)) {
+        if (!isNotEndEnrollmentTime() && isEnrollment(userAccount) && !isAttended(userAccount)) {
             return true;
         }
         return false;
@@ -108,11 +108,14 @@ public class Event {
     }
 
     public boolean isRejectable(Enrollment enrollment) {
-        return enrollment.isAccepted();
+        return enrollment.isAccepted() && !enrollment.isAttended();
     }
 
-    public boolean isAbleToAccept() {
+    public boolean isAbleToAcceptFCFS() {
         return getEventType() == EventType.FCFS && numberOfRemainSpots() > 0;
+    }
+    public boolean isAbleToAcceptCONFIMATIVE() {
+        return getEventType() == EventType.CONFIRMATIVE && numberOfRemainSpots() > 0;
     }
 
     public void addEnrollment(Enrollment enrollment) {
@@ -127,7 +130,7 @@ public class Event {
 
     public void acceptWaitingEnrollment() {
 
-        if (isAbleToAccept()) {
+        if (isAbleToAcceptFCFS()) {
             List<Enrollment> waitingList = getWaitingList();
             int count = Math.min(numberOfRemainSpots(), waitingList.size());
             waitingList.subList(0, count).forEach(enrollment -> enrollment.setAccepted(true));
@@ -136,7 +139,7 @@ public class Event {
     }
 
     public void acceptNextWaitingEnrollment() {
-        if (isAbleToAccept()) {
+        if (isAbleToAcceptFCFS()) {
             if (!getWaitingList().isEmpty()) {
                 Enrollment enrollment = getWaitingList().get(0);
                 enrollment.setAccepted(true);
@@ -150,4 +153,34 @@ public class Event {
     }
 
 
+    public void acceptEnrollment(Enrollment enrollment) {
+        if (isAbleToAcceptCONFIMATIVE()) {
+            enrollment.setAccepted(true);
+        }
+    }
+
+    public void rejectEnrollment(Enrollment enrollment) {
+        if (eventType == EventType.CONFIRMATIVE) {
+            enrollment.setAccepted(false);
+        }
+    }
+
+    public void checkinEnrollment(Enrollment enrollment) {
+        if (canAttended(enrollment)) {
+            enrollment.setAttended(true);
+        }
+    }
+    public void checkoutEnrollment(Enrollment enrollment) {
+        if (canDisAttended(enrollment)) {
+            enrollment.setAttended(false);
+        }
+    }
+
+    private boolean canDisAttended(Enrollment enrollment) {
+        return enrollment.isAttended() && enrollment.isAccepted();
+    }
+
+    private boolean canAttended(Enrollment enrollment) {
+        return !enrollment.isAttended() && enrollment.isAccepted();
+    }
 }

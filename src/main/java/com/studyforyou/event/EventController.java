@@ -2,6 +2,7 @@ package com.studyforyou.event;
 
 import com.studyforyou.account.CurrentAccount;
 import com.studyforyou.domain.Account;
+import com.studyforyou.domain.Enrollment;
 import com.studyforyou.domain.Event;
 import com.studyforyou.domain.Study;
 import com.studyforyou.dto.EventForm;
@@ -159,4 +160,38 @@ public class EventController {
         return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
     }
 
+    @GetMapping("/events/{eventId}/enrollments/{enrollmentId}/accept")
+    public String acceptEnrollment(@CurrentAccount Account account ,@PathVariable String path, @PathVariable("eventId") Event event, @PathVariable("enrollmentId") Enrollment enrollment) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+        eventService.acceptEnrollment(event,enrollment);
+
+        return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
+    }
+
+    @GetMapping("/events/{eventId}/enrollments/{enrollmentId}/reject")
+    public String rejectEnrollment(@CurrentAccount Account account ,@PathVariable String path, @PathVariable("eventId") Event event, @PathVariable("enrollmentId") Enrollment enrollment) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+        eventService.rejectEnrollment(event,enrollment);
+
+        return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
+    }
+
+    @GetMapping("/events/{eventId}/enrollments/{enrollmentId}/checkin")
+    public String checkinEnrollment(@CurrentAccount Account account ,@PathVariable String path, @PathVariable("eventId") Event event, @PathVariable("enrollmentId") Enrollment enrollment) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+        eventService.checkinEnrollment(event,enrollment);
+
+        return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
+    }
+    @GetMapping("/events/{eventId}/enrollments/{enrollmentId}/cancel-checkin")
+    public String checkoutEnrollment(@CurrentAccount Account account ,@PathVariable String path, @PathVariable("eventId") Event event, @PathVariable("enrollmentId") Enrollment enrollment) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+        eventService.checkoutEnrollment(event,enrollment);
+
+        return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
+    }
 }

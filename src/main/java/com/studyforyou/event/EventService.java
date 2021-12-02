@@ -63,7 +63,7 @@ public class EventService {
         if (!enrollmentRepository.existsByEventAndAccount(event, account)) {
             Enrollment enrollment = new Enrollment();
             enrollment.setAccount(account);
-            enrollment.setAccepted(event.isAbleToAccept());
+            enrollment.setAccepted(event.isAbleToAcceptFCFS());
             enrollment.setEnrolledAt(LocalDateTime.now());
             event.addEnrollment(enrollment);
             enrollmentRepository.save(enrollment);
@@ -74,12 +74,28 @@ public class EventService {
     public void disenrollEvent(Account account, Event event) {
         Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, account);
         if (enrollment != null) {
-            event.removeEnrollment(enrollment);
-            enrollmentRepository.delete(enrollment);
-            event.acceptNextWaitingEnrollment();
-            //TODO 첫번째 대기자 확정
+            if(!enrollment.isAttended()) { // 체크인이 아니여야 삭제
+                event.removeEnrollment(enrollment);
+                enrollmentRepository.delete(enrollment);
+                event.acceptNextWaitingEnrollment();
+            }
         }
     }
 
+    public void acceptEnrollment(Event event, Enrollment enrollment) {
+        event.acceptEnrollment(enrollment);
+    }
+
+    public void rejectEnrollment(Event event, Enrollment enrollment) {
+        event.rejectEnrollment(enrollment);
+    }
+
+    public void checkinEnrollment(Event event, Enrollment enrollment) {
+        event.checkinEnrollment(enrollment);
+    }
+
+    public void checkoutEnrollment(Event event, Enrollment enrollment) {
+        event.checkoutEnrollment(enrollment);
+    }
 }
 
