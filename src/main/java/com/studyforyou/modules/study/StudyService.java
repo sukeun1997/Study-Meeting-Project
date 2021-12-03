@@ -24,15 +24,13 @@ public class StudyService {
 
     private final StudyRepository studyRepository;
     private final ModelMapper modelMapper;
-    private final ApplicationEventPublisher applicationEventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     public void newStudy(Account account, StudyForm studyForm) {
         Study study = modelMapper.map(studyForm, Study.class);
         study.addMangers(account);
-        Study newStudy = studyRepository.save(study);
-
-        applicationEventPublisher.publishEvent(new StudyCreatedEvent(newStudy));
+        studyRepository.save(study);
     }
 
     public void updateDescription(Study study, StudyDescriptionForm studyDescriptionForm) {
@@ -155,6 +153,9 @@ public class StudyService {
         } else {
             throw new RuntimeException("스터디가 이미 공개 되었거나 종료 상태 입니다.");
         }
+
+        eventPublisher.publishEvent(new StudyCreatedEvent(study));
+
     }
 
     public void studyClose(Study study) {
