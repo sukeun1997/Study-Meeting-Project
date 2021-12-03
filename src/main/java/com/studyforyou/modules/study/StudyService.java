@@ -1,12 +1,14 @@
 package com.studyforyou.modules.study;
 
-import com.studyforyou.modules.account.UserAccount;
 import com.studyforyou.modules.account.Account;
+import com.studyforyou.modules.account.AccountRepository;
+import com.studyforyou.modules.account.UserAccount;
+import com.studyforyou.modules.event.StudyCreatedEvent;
 import com.studyforyou.modules.tag.Tag;
 import com.studyforyou.modules.zone.Zone;
-import com.studyforyou.modules.account.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,15 +23,16 @@ import java.time.LocalDateTime;
 public class StudyService {
 
     private final StudyRepository studyRepository;
-    private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
+    private final ApplicationEventPublisher applicationEventPublisher;
+
 
     public void newStudy(Account account, StudyForm studyForm) {
-        Account byNickname = accountRepository.findByNickname(account.getNickname());
-
         Study study = modelMapper.map(studyForm, Study.class);
-        study.addMangers(byNickname);
-        studyRepository.save(study);
+        study.addMangers(account);
+        Study newStudy = studyRepository.save(study);
+
+        applicationEventPublisher.publishEvent(new StudyCreatedEvent(newStudy));
     }
 
     public void updateDescription(Study study, StudyDescriptionForm studyDescriptionForm) {
