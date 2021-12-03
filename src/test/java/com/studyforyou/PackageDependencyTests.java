@@ -21,11 +21,11 @@ public class PackageDependencyTests {
             .should().onlyBeAccessed().byClassesThat().resideInAnyPackage("com.studyforyou.modules..");
 
     @ArchTest
-    ArchRule studyPackageRule = classes().that().resideInAPackage("..modules.study..")
+    ArchRule studyPackageRule = classes().that().resideInAPackage(STUDY)
             .should().onlyBeAccessed().byClassesThat().resideInAnyPackage(STUDY,EVENT);
 
     @ArchTest
-    ArchRule accountPackageRule = classes().that().resideInAnyPackage("..modules.account..")
+    ArchRule accountPackageRule = classes().that().resideInAnyPackage(ACCOUNT)
             .should().accessClassesThat().resideInAnyPackage(ZONE, TAG, ACCOUNT);
 
 
@@ -34,7 +34,7 @@ public class PackageDependencyTests {
             .should().onlyBeAccessed().byClassesThat().resideInAnyPackage(STUDY,EVENT,ACCOUNT);
 
     @ArchTest
-    ArchRule eventPackageRule = classes().that().resideInAnyPackage("..modules.event..")
+    ArchRule eventPackageRule = classes().that().resideInAnyPackage(EVENT)
             .should().accessClassesThat().resideInAnyPackage(EVENT, STUDY,ACCOUNT);
 
     @ArchTest

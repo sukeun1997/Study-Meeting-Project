@@ -46,23 +46,17 @@ public class StudyControllerTest {
     @Autowired
     public ObjectMapper objectMapper;
 
-    public Study study;
-    public Account account;
+    @Autowired
+    StudyFactory studyFactory;
 
+   Study study;
+
+    Account account;
     @BeforeEach
-    private void beforeEach() {
-        StudyForm studyForm = new StudyForm();
-        studyForm.setTitle("테스트");
-        studyForm.setShortDescription("테스트");
-        studyForm.setPath("테스트1");
-        studyForm.setFullDescription("테스트");
-
+    public void beforeEach() {
         account = accountRepository.findByNickname("test");
-        studyService.newStudy(account, studyForm);
-
-        study = studyRepository.findByPath(studyForm.getPath());
+        study = studyFactory.createStudy();
     }
-
     @AfterEach
     private void afterEach() {
         studyRepository.deleteAll();

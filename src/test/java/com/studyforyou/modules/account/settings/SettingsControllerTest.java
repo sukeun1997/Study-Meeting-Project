@@ -1,6 +1,7 @@
 package com.studyforyou.modules.account.settings;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.studyforyou.infra.MockMvcTest;
 import com.studyforyou.modules.account.WithAccount;
 import com.studyforyou.modules.account.AccountService;
 import com.studyforyou.modules.account.Account;
@@ -30,10 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@TestPropertySource(locations = "classpath:application-test.properties")
-@Transactional
+@MockMvcTest
 class SettingsControllerTest {
 
     @Autowired

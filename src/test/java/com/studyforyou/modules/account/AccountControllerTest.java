@@ -1,5 +1,6 @@
 package com.studyforyou.modules.account;
 
+import com.studyforyou.infra.MockMvcTest;
 import com.studyforyou.infra.mail.EmailMessage;
 import com.studyforyou.infra.mail.EmailService;
 import org.junit.jupiter.api.AfterEach;
@@ -24,9 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@TestPropertySource(locations = "classpath:application-test.properties")
+@MockMvcTest
 class AccountControllerTest {
 
     @Autowired
