@@ -1,13 +1,11 @@
 package com.studyforyou.modules.event;
 
-import com.querydsl.core.types.Predicate;
 import com.studyforyou.infra.config.AppProperties;
 import com.studyforyou.infra.mail.EmailMessage;
 import com.studyforyou.infra.mail.EmailService;
 import com.studyforyou.modules.account.Account;
 import com.studyforyou.modules.account.AccountPredicates;
 import com.studyforyou.modules.account.AccountRepository;
-import com.studyforyou.modules.account.settings.Notifications;
 import com.studyforyou.modules.notification.Notification;
 import com.studyforyou.modules.notification.NotificationRepository;
 import com.studyforyou.modules.notification.NotificationType;
@@ -16,13 +14,11 @@ import com.studyforyou.modules.study.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.mail.MailMessage;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.context.IContext;
 
 import java.time.LocalDateTime;
 
@@ -64,7 +60,7 @@ public class StudyEventListener {
         notification.setAccount(account);
         notification.setTitle(study.getTitle());
         notification.setLink("study/"+ study.getEncodedPath());
-        notification.setCreatedLocalDateTime(LocalDateTime.now());
+        notification.setCreatedDateTime(LocalDateTime.now());
         notification.setMessage(study.getShortDescription());
         notificationRepository.save(notification);
     }
