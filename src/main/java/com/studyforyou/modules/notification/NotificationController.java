@@ -23,7 +23,7 @@ public class NotificationController {
 
         model.addAttribute(account);
 
-        List<Notification> notifications = notificationRepository.findByAccountAndCheckedOrderByCreatedDateTime(account, false);
+        List<Notification> notifications = notificationRepository.findByAccountAndCheckedOrderByCreatedDateTimeDesc(account, false);
         long count = notificationRepository.countByAccountAndChecked(account, true);
 
 
@@ -44,7 +44,7 @@ public class NotificationController {
 
         model.addAttribute(account);
 
-        List<Notification> notifications = notificationRepository.findByAccountAndCheckedOrderByCreatedDateTime(account, true);
+        List<Notification> notifications = notificationRepository.findByAccountAndCheckedOrderByCreatedDateTimeDesc(account, true);
         long count = notificationRepository.countByAccountAndChecked(account, false);
 
 

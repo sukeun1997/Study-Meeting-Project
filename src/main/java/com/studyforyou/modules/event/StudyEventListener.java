@@ -57,7 +57,6 @@ public class StudyEventListener {
     }
     @EventListener
     public void handleStudyUpdateEvent(StudyUpdatedEvent StudyUpdatedEvent) {
-//        Study study = studyCreatedEvent.getStudy(); // Detached 상태 , mangers 정보만 가지고 있음
         Study study = studyRepository.findMembersWithManagersById(StudyUpdatedEvent.getStudy().getId());
         Set<Account> accounts = new HashSet<>();
         accounts.addAll(study.getManagers());
@@ -74,15 +73,32 @@ public class StudyEventListener {
                 createNotification(study, account, message, NotificationType.STUDY_UPDATED);
             }
         });
+    }
 
+    @EventListener
+    public void handleEventUpdateEvent(StudyEventUpdatedEvent studyEventUpdatedEvent) {
+
+        Enrollment enrollment = studyEventUpdatedEvent.getEnrollment();
+        Event event = enrollment.getEvent();
+        Study study = event.getStudy();
+        Account account = enrollment.getAccount();
+        String message = studyEventUpdatedEvent.getMessage();
+
+
+            if (account.isStudyEnrollmentResultByEmail()) {
+                sendCreatedStudyEmail(study, account, message,"스터디 포유 '"+ study.getTitle()+ "' "+event.getTitle()+" 모임 신청 결과 입니다.");
+            }
+
+            if (account.isStudyEnrollmentResultByWeb()) {
+                createNotification(study, account, message, NotificationType.EVENT_ENROLLMENT);
+            }
     }
 
     private void createNotification(Study study, Account account, String description, NotificationType notificationType) {
         Notification notification = new Notification();
-        notification.setNotificationType(NotificationType.STUDY_CREATED);
         notification.setAccount(account);
         notification.setTitle(study.getTitle());
-        notification.setLink("study/"+ study.getEncodedPath());
+        notification.setLink("/study/"+ study.getEncodedPath());
         notification.setCreatedDateTime(LocalDateTime.now());
         notification.setMessage(description);
         notification.setNotificationType(notificationType);

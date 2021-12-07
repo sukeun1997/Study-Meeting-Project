@@ -37,7 +37,6 @@ public class StudyService {
     public void updateDescription(Study study, StudyDescriptionForm studyDescriptionForm) {
         modelMapper.map(studyDescriptionForm, study);
         eventPublisher.publishEvent(new StudyUpdatedEvent(study,"스터디 소개가 수정되었습니다."));
-        //TODO 변경알림 추가
     }
 
     @Transactional(readOnly = true)
@@ -149,6 +148,7 @@ public class StudyService {
     }
 
     public void studyPublish(Study study) {
+
         if (!study.isClosed() && !study.isPublished()) {
             study.setPublished(true);
             study.setClosed(false);
@@ -156,9 +156,7 @@ public class StudyService {
         } else {
             throw new RuntimeException("스터디가 이미 공개 되었거나 종료 상태 입니다.");
         }
-
         eventPublisher.publishEvent(new StudyCreatedEvent(study));
-
     }
 
     public void studyClose(Study study) {
@@ -168,7 +166,6 @@ public class StudyService {
             study.setClosed(true);
             study.setClosedDateTime(LocalDateTime.now());
             eventPublisher.publishEvent(new StudyUpdatedEvent(study,"스터디가 종료 되었습니다."));
-            // TODO 스터디 종료 알림
         } else {
             throw new RuntimeException("스터디가 이미 종료 되었거나 공개 상태가 아닙니다.");
         }
@@ -178,14 +175,12 @@ public class StudyService {
         study.setRecruiting(true);
         study.setRecruitingUpdatedDateTime(LocalDateTime.now());
         eventPublisher.publishEvent(new StudyUpdatedEvent(study,"가입된 스터디 팀원 모집이 시작 되었습니다."));
-        //TODO 스터디 모집 시작 알림
     }
 
     public void recruitStop(Study study) {
         study.setRecruiting(false);
         study.setRecruitingUpdatedDateTime(LocalDateTime.now());
         eventPublisher.publishEvent(new StudyUpdatedEvent(study,"가입된 스터디 팀원 모집이 종료 되었습니다."));
-        //TODO 스터디 모집 종료 아릶
     }
 
     public boolean checkRecruitingTime(Study study) {
