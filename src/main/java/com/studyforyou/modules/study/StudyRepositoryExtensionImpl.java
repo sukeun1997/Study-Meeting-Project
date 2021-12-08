@@ -38,11 +38,10 @@ public class StudyRepositoryExtensionImpl extends QuerydslRepositorySupport impl
                 .leftJoin(study.tags, qTag).fetchJoin()
                 .leftJoin(study.zones, qZone).fetchJoin()
                 .distinct()
-                .orderBy(study.publishedDateTime.desc())
+                .orderBy(pageable.getSort().toString().contains("publishedDateTime") ? study.publishedDateTime.desc() : study.memberCount.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();
-
 
 
         List<Study> content = query.getResults();

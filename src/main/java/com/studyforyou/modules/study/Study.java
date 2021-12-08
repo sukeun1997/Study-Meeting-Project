@@ -81,7 +81,10 @@ public class Study {
 
     private boolean closed;
 
+
     private boolean useBanner;
+
+    private int memberCount;
 
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Account> managers = new HashSet<>();
@@ -119,10 +122,12 @@ public class Study {
 
     public void removeMember(Account account) {
         this.getMembers().remove(account);
+        memberCount--;
     }
 
     public void addMember(Account account) {
         this.getMembers().add(account);
+        memberCount++;
     }
 
     public String getEncodedPath() {
