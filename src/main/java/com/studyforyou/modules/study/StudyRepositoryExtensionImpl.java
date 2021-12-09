@@ -4,7 +4,9 @@ import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.studyforyou.modules.account.QAccount;
 import com.studyforyou.modules.tag.QTag;
+import com.studyforyou.modules.tag.Tag;
 import com.studyforyou.modules.zone.QZone;
+import com.studyforyou.modules.zone.Zone;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +14,7 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Set;
 
 public class StudyRepositoryExtensionImpl extends QuerydslRepositorySupport implements StudyRepositoryExtension {
 
@@ -45,7 +48,7 @@ public class StudyRepositoryExtensionImpl extends QuerydslRepositorySupport impl
 
         List<Study> content = query.getResults();
 
-        return new PageImpl<>(content,pageable,query.getTotal());
+        return new PageImpl<>(content, pageable, query.getTotal());
     }
 
     @Override
@@ -64,6 +67,22 @@ public class StudyRepositoryExtensionImpl extends QuerydslRepositorySupport impl
                 .fetch();
 
         return query;
+    }
+
+    @Override
+    public List<Study> findByAccount(Set<Tag> tags, Set<Zone> zones) {
+        QStudy study = QStudy.study;
+
+        List<Study> query = jpaQueryFactory.select(study).from(study)
+                .where(study.tags.any().in(tags).and(study.zones.any().in(zones))
+                        .and(study.published.isTrue().and(study.closed.isFalse())))
+                .leftJoin(study.tags, QTag.tag).fetchJoin()
+                .leftJoin(study.zones, QZone.zone).fetchJoin()
+                .limit(6)
+                .fetch();
+
+        return query;
+
     }
 
 }

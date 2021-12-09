@@ -6,6 +6,11 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@NamedEntityGraph(name = "enrollmentEventAndStudySubGraph",
+        attributeNodes = @NamedAttributeNode(value = "event", subgraph = "event"),
+    subgraphs = @NamedSubgraph(name = "event", attributeNodes = @NamedAttributeNode("study")))
+
+
 @Entity
 @Getter
 @Setter

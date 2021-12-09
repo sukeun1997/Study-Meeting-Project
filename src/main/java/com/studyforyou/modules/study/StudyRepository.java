@@ -1,5 +1,6 @@
 package com.studyforyou.modules.study;
 
+import com.studyforyou.modules.account.Account;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,4 +35,8 @@ public interface StudyRepository extends JpaRepository<Study, Long>, StudyReposi
     Study findMembersWithManagersById(Long id);
 
     Study findOnlyByPath(String path);
+
+    List<Study> findFirst5ByManagersContainingAndClosedOrderByPublishedDateTime(Account account,boolean closed);
+    List<Study> findFirst5ByMembersContainingAndClosedOrderByPublishedDateTime(Account account,boolean closed);
+
 }

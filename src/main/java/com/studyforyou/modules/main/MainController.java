@@ -1,7 +1,10 @@
 package com.studyforyou.modules.main;
 
+import com.studyforyou.modules.account.AccountRepository;
 import com.studyforyou.modules.account.CurrentAccount;
 import com.studyforyou.modules.account.Account;
+import com.studyforyou.modules.event.Enrollment;
+import com.studyforyou.modules.event.EnrollmentRepository;
 import com.studyforyou.modules.study.Study;
 import com.studyforyou.modules.study.StudyRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,21 +23,30 @@ import java.util.List;
 public class MainController {
 
     private final StudyRepository studyRepository;
+    private final AccountRepository accountRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     @GetMapping("/")
     public String home(@CurrentAccount Account account, Model model) {
 
-        List<Study> studyList = studyRepository.findHomeStudyList();
-
-        model.addAttribute("studyList", studyList);
 
         if (account != null) {
-            model.addAttribute(account);
+            Account accountWithTagsAndZone = accountRepository.findAccountWithTagsAndZonesById(account.getId());
+            List<Enrollment> enrollmentList = enrollmentRepository.findEnrollmentWithEventAndStudyByAccepted(true);
+            List<Study> studyList = studyRepository.findByAccount(accountWithTagsAndZone.getTags(), accountWithTagsAndZone.getZones());
+            List<Study> managers = studyRepository.findFirst5ByManagersContainingAndClosedOrderByPublishedDateTime(account,false);
+            List<Study> members = studyRepository.findFirst5ByMembersContainingAndClosedOrderByPublishedDateTime(account,false);
+            model.addAttribute("account",accountWithTagsAndZone);
+            model.addAttribute("enrollmentList", enrollmentList);
+            model.addAttribute("studyList", studyList);
+            model.addAttribute("studyManagerOf", managers);
+            model.addAttribute("studyMemberOf", members);
+            return "index-after-login";
+        } else {
+            List<Study> studyList = studyRepository.findHomeStudyList();
+            model.addAttribute("studyList", studyList);
+            return "index";
         }
-
-
-
-        return "index";
 
     }
 
