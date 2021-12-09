@@ -10,4 +10,6 @@ import java.util.List;
 public interface StudyRepositoryExtension {
 
     Page<Study> findByKeyword(String keyword, Pageable pageable);
+
+    List<Study> findHomeStudyList();
 }

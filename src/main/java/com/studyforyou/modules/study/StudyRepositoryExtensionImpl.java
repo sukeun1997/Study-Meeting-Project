@@ -34,7 +34,6 @@ public class StudyRepositoryExtensionImpl extends QuerydslRepositorySupport impl
                         .and(study.title.containsIgnoreCase(keyword))
                         .or(study.tags.any().title.containsIgnoreCase(keyword))
                         .or(study.zones.any().localNameOfCity.containsIgnoreCase(keyword)))
-                .leftJoin(study.members ,qAccount).fetchJoin()
                 .leftJoin(study.tags, qTag).fetchJoin()
                 .leftJoin(study.zones, qZone).fetchJoin()
                 .distinct()
@@ -47,6 +46,24 @@ public class StudyRepositoryExtensionImpl extends QuerydslRepositorySupport impl
         List<Study> content = query.getResults();
 
         return new PageImpl<>(content,pageable,query.getTotal());
+    }
+
+    @Override
+    public List<Study> findHomeStudyList() {
+
+        QStudy study = QStudy.study;
+
+        List<Study> query = jpaQueryFactory.select(study)
+                .from(study)
+                .where(study.published.isTrue().and(study.closed.isFalse()))
+                .leftJoin(study.tags, QTag.tag).fetchJoin()
+                .leftJoin(study.zones, QZone.zone).fetchJoin()
+                .distinct()
+                .orderBy(study.publishedDateTime.desc())
+                .limit(9)
+                .fetch();
+
+        return query;
     }
 
 }

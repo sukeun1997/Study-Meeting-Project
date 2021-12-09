@@ -24,9 +24,15 @@ public class MainController {
     @GetMapping("/")
     public String home(@CurrentAccount Account account, Model model) {
 
+        List<Study> studyList = studyRepository.findHomeStudyList();
+
+        model.addAttribute("studyList", studyList);
+
         if (account != null) {
             model.addAttribute(account);
         }
+
+
 
         return "index";
 
