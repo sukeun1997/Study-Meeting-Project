@@ -2,6 +2,7 @@ package com.studyforyou.modules.event;
 
 import com.studyforyou.modules.account.Account;
 import com.studyforyou.modules.study.Study;
+import com.studyforyou.modules.study.StudyUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;

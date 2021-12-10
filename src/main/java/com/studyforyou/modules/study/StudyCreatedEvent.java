@@ -1,4 +1,4 @@
-package com.studyforyou.modules.event;
+package com.studyforyou.modules.study;
 
 import com.studyforyou.modules.study.Study;
 import lombok.Getter;

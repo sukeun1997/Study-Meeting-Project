@@ -1,10 +1,7 @@
 package com.studyforyou.modules.study;
 
 import com.studyforyou.modules.account.Account;
-import com.studyforyou.modules.account.AccountRepository;
 import com.studyforyou.modules.account.UserAccount;
-import com.studyforyou.modules.event.StudyCreatedEvent;
-import com.studyforyou.modules.event.StudyUpdatedEvent;
 import com.studyforyou.modules.tag.Tag;
 import com.studyforyou.modules.zone.Zone;
 import lombok.RequiredArgsConstructor;
