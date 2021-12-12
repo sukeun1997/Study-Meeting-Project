@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
@@ -18,19 +19,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.authorizeRequests()
-                .mvcMatchers("/","/sign-up","/check-email-token").permitAll()
+                .mvcMatchers("/","/sign-up","/login","/check-email-token").permitAll()
                 .anyRequest().authenticated();
 
 
-//        http.formLogin().defaultSuccessUrl("/").permitAll();
-//
-//        http.logout().logoutSuccessUrl("/");
+        http.formLogin().loginPage("/login").defaultSuccessUrl("/").permitAll();
+
+        http.logout().logoutSuccessUrl("/");
 
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Override
