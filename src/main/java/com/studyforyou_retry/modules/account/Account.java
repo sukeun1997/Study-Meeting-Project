@@ -55,7 +55,7 @@ public class Account {
     public void getGenerateCheckToken() {
 
         String uuid = UUID.randomUUID().toString();
+        this.emailCheckToken = uuid;
         this.emailCheckTokenGeneratedAt = LocalDateTime.now();
-
     }
 }
