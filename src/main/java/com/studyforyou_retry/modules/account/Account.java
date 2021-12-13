@@ -52,7 +52,7 @@ public class Account {
     private String url;
 
 
-    public void getGenerateCheckToken() {
+    public void GenerateCheckToken() {
 
         String uuid = UUID.randomUUID().toString();
         this.emailCheckToken = uuid;
@@ -62,5 +62,9 @@ public class Account {
     public void verifiedEmailToken() {
         this.emailVerified = true;
         this.joinedAt = LocalDateTime.now();
+    }
+
+    public boolean canResendEmail() {
+        return this.emailCheckTokenGeneratedAt.isBefore(LocalDateTime.now().minusHours(1));
     }
 }

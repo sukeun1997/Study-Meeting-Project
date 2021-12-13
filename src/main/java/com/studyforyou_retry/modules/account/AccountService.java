@@ -7,7 +7,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,8 +29,7 @@ public class AccountService implements UserDetailsService {
     public void createNewAccount(SignUpForm signUpForm) {
         signUpForm.setPassword(passwordEncoder.encode(signUpForm.getPassword()));
         Account account = modelMapper.map(signUpForm, Account.class);
-        account.getGenerateCheckToken();
-        log.info("/check-email-token?token={}&email={}", account.getEmailCheckToken(), account.getEmail());
+        sendConfirmEmail(account);
         accountRepository.save(account);
         login(account);
     }
@@ -70,5 +68,10 @@ public class AccountService implements UserDetailsService {
     }
 
 
+    public void sendConfirmEmail(Account account) {
+        account.GenerateCheckToken();
+        log.info("/check-email-token?token={}&email={}", account.getEmailCheckToken(), account.getEmail());
+        //TODO 인증 이메일 보내기
+    }
 }
 
