@@ -3,7 +3,10 @@ package com.studyforyou_retry.modules.account;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,6 +33,7 @@ public class AccountService implements UserDetailsService {
         account.getGenerateCheckToken();
         log.info("/check-email-token?token={}&email={}", account.getEmailCheckToken(), account.getEmail());
         accountRepository.save(account);
+        login(account);
     }
 
     @Override
@@ -51,6 +55,20 @@ public class AccountService implements UserDetailsService {
 
     public void verifiedEmailToken(Account account) {
         account.verifiedEmailToken();
+        login(account);
     }
+
+    private void login(Account account) {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                new UserAccount(account),
+                account.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        securityContext.setAuthentication(token);
+    }
+
+
 }
 
