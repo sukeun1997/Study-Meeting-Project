@@ -19,6 +19,7 @@ public class AccountController {
 
     private final AccountService accountService;
     private final SignUpFormValidator signUpFormValidator;
+    private final AccountRepository accountRepository;
 
     @InitBinder("signUpForm")
     private void signUpFormValidator(WebDataBinder webDataBinder) {
@@ -26,13 +27,13 @@ public class AccountController {
     }
 
     @GetMapping("/sign-up")
-    public String getSignUpPage(Model model) {
+    private String getSignUpPage(Model model) {
         model.addAttribute(new SignUpForm());
         return "account/sign-up";
     }
 
     @PostMapping("/sign-up")
-    public String postSignUpPage(@Valid SignUpForm signUpForm, BindingResult bindingResult) {
+    private String postSignUpPage(@Valid SignUpForm signUpForm, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             return "account/sign-up";
@@ -42,8 +43,27 @@ public class AccountController {
         return "redirect:/";
     }
 
+    @GetMapping("check-email-token")
+    private String checkEmailToken(String token, String email, Model model) {
+
+        Account account = accountRepository.findByEmail(email);
+        if (account == null) {
+            model.addAttribute("error", "Wrong Email");
+        }
+
+        if (!account.getEmailCheckToken().equals(token)) {
+            model.addAttribute("error", "Wrong Token");
+        }
+        accountService.verifiedEmailToken(account);
+        long count = accountRepository.countByEmailVerified(true);
+        model.addAttribute("numberOfUser", count);
+        model.addAttribute("nickname", account.getNickname());
+
+        return "account/checked-email";
+    }
+
     @GetMapping("/login")
-    public String login() {
+    private String login() {
         return "account/login";
     }
 }

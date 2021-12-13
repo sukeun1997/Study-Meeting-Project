@@ -51,5 +51,10 @@ public class AccountService implements UserDetailsService {
                 .roles(String.valueOf(List.of(new SimpleGrantedAuthority("ROLE_USER"))))
                 .build();
     }
+
+    public void verifiedEmailToken(Account account) {
+        account.verifiedEmailToken();
+
+    }
 }
 

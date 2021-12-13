@@ -58,4 +58,9 @@ public class Account {
         this.emailCheckToken = uuid;
         this.emailCheckTokenGeneratedAt = LocalDateTime.now();
     }
+
+    public void verifiedEmailToken() {
+        this.emailVerified = true;
+        this.joinedAt = LocalDateTime.now();
+    }
 }

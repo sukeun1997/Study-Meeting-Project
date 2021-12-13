@@ -38,7 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
 
         web.ignoring().
-                antMatchers("/favicon.ico", "/resources/**","/images/**")
+                antMatchers("/favicon.ico", "/resources/**","/error")
                 .mvcMatchers("/node_modules/**")
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
 
