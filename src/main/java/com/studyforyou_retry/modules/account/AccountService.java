@@ -46,15 +46,11 @@ public class AccountService implements UserDetailsService {
             throw new UsernameNotFoundException(emailAndNickName);
         }
 
-        return User.builder().username(account.getNickname())
-                .password(account.getPassword())
-                .roles(String.valueOf(List.of(new SimpleGrantedAuthority("ROLE_USER"))))
-                .build();
+        return new UserAccount(account);
     }
 
     public void verifiedEmailToken(Account account) {
         account.verifiedEmailToken();
-
     }
 }
 
