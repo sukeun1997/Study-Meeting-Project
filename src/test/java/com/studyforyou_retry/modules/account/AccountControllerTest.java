@@ -1,5 +1,7 @@
 package com.studyforyou_retry.modules.account;
 
+import lombok.With;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -31,12 +35,9 @@ class AccountControllerTest {
     @Autowired
     AccountFactory accountFactory;
 
-    Account account;
-
-    @BeforeEach
-    private void before() {
-        accountFactory.createNewAccount("test");
-        account = accountRepository.findByNickname("test");
+    @AfterEach
+    private void after() {
+        accountRepository.deleteAll();
     }
     @Test
     @DisplayName("회원가입 창 테스트")
@@ -98,8 +99,11 @@ class AccountControllerTest {
     }
 
     @Test
+    @WithAccount("test")
     @DisplayName("이메일 인증 확인 - 성공")
     void checkEmailToken_Success() throws Exception {
+
+        Account account = accountRepository.findByNickname("test");
 
         mockMvc.perform(get("/check-email-token")
                         .param("token", account.getEmailCheckToken())
@@ -113,10 +117,11 @@ class AccountControllerTest {
     }
 
     @Test
+    @WithAccount("test")
     @DisplayName("이메일 인증 확인 - 실패")
     void checkEmailToken_Fail() throws Exception {
 
-
+        Account account = accountRepository.findByNickname("test");
         mockMvc.perform(get("/check-email-token")
                         .param("token", account.getEmailCheckToken())
                         .param("email", account.getEmail() +"1")
@@ -130,10 +135,10 @@ class AccountControllerTest {
     }
 
     @Test
-    @WithMockUser("test")
+    @WithAccount("test")
     @DisplayName("인증 이메일 재전송 - 성공")
     void resendConfirmEmail_Success() throws Exception {
-
+        Account account = accountRepository.findByNickname("test");
         account.setEmailCheckTokenGeneratedAt(account.getEmailCheckTokenGeneratedAt().minusHours(1));
 
         mockMvc.perform(get("/resend-confirm-email"))
@@ -142,9 +147,11 @@ class AccountControllerTest {
     }
 
     @Test
-    @WithMockUser("test")
+    @WithAccount("test")
     @DisplayName("인증 이메일 재전송 - 실패")
     void resendConfirmEmail_Fail() throws Exception {
+
+        Account account = accountRepository.findByNickname("test");
 
         mockMvc.perform(get("/resend-confirm-email"))
                 .andExpect(status().isOk())
