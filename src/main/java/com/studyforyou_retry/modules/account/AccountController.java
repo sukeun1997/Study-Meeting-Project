@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
@@ -18,6 +19,7 @@ public class AccountController {
     public static final String ACCOUNT_CHECKED_EMAIL = "account/checked-email";
     public static final String ACCOUNT_CHECK_EMAIL = "account/check-email";
     public static final String ACCOUNT_SIGN_UP = "account/sign-up";
+    public static final String ACCOUNT_PROFILE = "account/profile";
 
     private final AccountService accountService;
     private final SignUpFormValidator signUpFormValidator;
@@ -89,6 +91,15 @@ public class AccountController {
 
         accountService.sendConfirmEmail(account);
         return "redirect:/";
+    }
+
+    @GetMapping("/profile/{nickname}")
+    private String profileView(@CurrentAccount Account account, Model model, @PathVariable String nickname) {
+
+        Account byNickname = accountRepository.findByNickname(nickname);
+        model.addAttribute(account);
+        model.addAttribute("isOwner",byNickname.equals(account));
+        return ACCOUNT_PROFILE;
     }
 
 }
