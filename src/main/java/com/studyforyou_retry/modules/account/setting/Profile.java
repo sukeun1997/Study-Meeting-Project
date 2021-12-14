@@ -1,27 +1,26 @@
 package com.studyforyou_retry.modules.account.setting;
 
-import lombok.*;
+import lombok.Data;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.URL;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.validation.constraints.NotBlank;
 
-@Entity
-@EqualsAndHashCode(of = "id")
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 public class Profile {
 
-    @Id
-    @GeneratedValue
-    private Long id;
 
+    @NotBlank(message = "필수 입력 값 입니다.")
+    @Length(max = 35, message = "35자 이하로 입력 해주세요")
     private String bio;
+
+    @URL(message = "주소 형태로 입력 해주세요.")
     private String url;
+
     private String occupation;
+
+
     private String location;
 
     @Lob

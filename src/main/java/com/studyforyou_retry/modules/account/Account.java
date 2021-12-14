@@ -1,11 +1,9 @@
 package com.studyforyou_retry.modules.account;
 
+import com.studyforyou_retry.modules.account.setting.Profile;
 import lombok.*;
-import org.hibernate.id.UUIDGenerator;
-import org.thymeleaf.util.StringUtils;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -66,5 +64,14 @@ public class Account {
 
     public boolean canResendEmail() {
         return this.emailCheckTokenGeneratedAt.isBefore(LocalDateTime.now().minusHours(1));
+    }
+
+    public void updateProfile(Profile profile) {
+        this.bio = profile.getBio();
+        this.url = profile.getUrl();
+        this.location = profile.getLocation();
+        this.occupation = profile.getOccupation();
+        this.profileImage = profile.getProfileImage();
+
     }
 }

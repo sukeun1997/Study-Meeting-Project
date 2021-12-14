@@ -1,5 +1,6 @@
 package com.studyforyou_retry.modules.account;
 
+import com.studyforyou_retry.modules.account.setting.Profile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -72,6 +73,10 @@ public class AccountService implements UserDetailsService {
         account.GenerateCheckToken();
         log.info("/check-email-token?token={}&email={}", account.getEmailCheckToken(), account.getEmail());
         //TODO 인증 이메일 보내기
+    }
+
+    public void updateProfile(Account account, Profile profile) {
+        account.updateProfile(profile);
     }
 }
 
