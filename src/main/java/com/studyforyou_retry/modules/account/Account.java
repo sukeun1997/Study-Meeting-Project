@@ -74,4 +74,8 @@ public class Account {
         this.profileImage = profile.getProfileImage();
 
     }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }

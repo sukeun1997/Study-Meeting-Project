@@ -1,5 +1,6 @@
 package com.studyforyou_retry.modules.account;
 
+import com.studyforyou_retry.modules.account.setting.PasswordForm;
 import com.studyforyou_retry.modules.account.setting.Profile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,10 +40,10 @@ public class AccountService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String emailAndNickName) throws UsernameNotFoundException {
 
-        Account account = accountRepository.findByEmail(emailAndNickName);
+        Account account = accountRepository.findByNickname(emailAndNickName);
 
         if (account == null) {
-            account = accountRepository.findByNickname(emailAndNickName);
+            account = accountRepository.findByEmail(emailAndNickName);
         }
 
         if (account == null) {
@@ -77,6 +78,13 @@ public class AccountService implements UserDetailsService {
 
     public void updateProfile(Account account, Profile profile) {
         account.updateProfile(profile);
+        accountRepository.save(account);
+    }
+
+    public void updatePassword(Account account, PasswordForm passwordForm) {
+        String password = passwordEncoder.encode(passwordForm.getNewPasswordConfirm());
+        account.updatePassword(password);
+        accountRepository.save(account);
     }
 }
 
