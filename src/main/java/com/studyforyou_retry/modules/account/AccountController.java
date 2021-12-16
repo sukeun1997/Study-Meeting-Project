@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
@@ -20,6 +21,9 @@ public class AccountController {
     public static final String ACCOUNT_CHECK_EMAIL = "account/check-email";
     public static final String ACCOUNT_SIGN_UP = "account/sign-up";
     public static final String ACCOUNT_PROFILE = "account/profile";
+    public static final String ACCOUNT_EMAIL_LOGIN = "account/email-login";
+    public static final String ACCOUNT_CHECK_LOGIN_EMAIL = "account/check-login-email";
+    public static final String ACCOUNT_LOGGED_IN_BY_EMAIL = "account/logged-in-by-email";
 
     private final AccountService accountService;
     private final SignUpFormValidator signUpFormValidator;
@@ -98,8 +102,45 @@ public class AccountController {
 
         Account byNickname = accountRepository.findByNickname(nickname);
         model.addAttribute(account);
-        model.addAttribute("isOwner",byNickname.equals(account));
+        model.addAttribute("isOwner", byNickname.equals(account));
         return ACCOUNT_PROFILE;
     }
 
+
+    @GetMapping("/email-login")
+    private String emailLoginForm() {
+        return ACCOUNT_EMAIL_LOGIN;
+    }
+
+    @PostMapping("/email-login")
+    private String emailLogin(String email, Model model) {
+
+        Account byEmail = accountRepository.findByEmail(email);
+        model.addAttribute("email", email);
+        if (byEmail == null) {
+            model.addAttribute("error", "입력하신 이메일에 해당하는 계정이 없습니다.");
+            return ACCOUNT_CHECK_LOGIN_EMAIL;
+        }
+
+        if (!byEmail.canResendEmail()) {
+            model.addAttribute("error", "이메일 로그인은 1시간 마다 가능합니다.");
+            return ACCOUNT_CHECK_LOGIN_EMAIL;
+        }
+
+        accountService.sendLoginEmail(byEmail);
+        return ACCOUNT_CHECK_LOGIN_EMAIL;
+    }
+
+    @GetMapping("/logged-in-by-email")
+    private String emailLoginCheck(String email, String token, Model model) {
+        Account byEmail = accountRepository.findByEmail(email);
+
+        if (byEmail == null || !byEmail.getEmailCheckToken().equals(token)) {
+            model.addAttribute("error", "이메일 로그인 링크가 정확하지 않습니다.");
+            return ACCOUNT_LOGGED_IN_BY_EMAIL;
+        }
+
+        accountService.login(byEmail);
+        return ACCOUNT_LOGGED_IN_BY_EMAIL;
+    }
 }

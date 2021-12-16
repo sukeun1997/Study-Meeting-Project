@@ -29,7 +29,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.authorizeRequests()
-                .mvcMatchers("/","/sign-up","/login","/check-email-token").permitAll()
+                .mvcMatchers("/", "/sign-up", "/login"
+                        , "/check-email-token","/logged-in-by-email"
+                        , "/find-password"
+                        , "/email-login")
+                .permitAll()
                 .anyRequest().authenticated();
 
 
@@ -42,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public PersistentTokenRepository tokenRepository(){
+    public PersistentTokenRepository tokenRepository() {
         JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
         jdbcTokenRepository.setDataSource(dataSource);
         return jdbcTokenRepository;
@@ -52,7 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
 
         web.ignoring().
-                antMatchers("/favicon.ico", "/resources/**","/error")
+                antMatchers("/favicon.ico", "/resources/**", "/error")
                 .mvcMatchers("/node_modules/**")
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
 

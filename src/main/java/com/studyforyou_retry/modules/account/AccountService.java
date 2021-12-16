@@ -59,7 +59,7 @@ public class AccountService implements UserDetailsService {
         login(account);
     }
 
-    private void login(Account account) {
+    public void login(Account account) {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 new UserAccount(account),
                 account.getPassword(),
@@ -96,6 +96,11 @@ public class AccountService implements UserDetailsService {
     public void updateAccount(Account account, String nickname) {
         account.updateNickName(nickname);
         accountRepository.save(account);
+    }
+
+    public void sendLoginEmail(Account byEmail) {
+        //TODO 로그인 이메일 보내기
+        log.info("/logged-in-by-email?email={}&token={}",byEmail.getEmail(), byEmail.getEmailCheckToken());
     }
 }
 
