@@ -26,6 +26,7 @@ public class SettingController {
     public static final String SETTINGS = "settings/";
     public static final String PROFILE = "profile";
     public static final String PASSWORD = "password";
+    public static final String NOTIFICATIONS = "notifications";
 
     private final ModelMapper modelMapper;
     private final AccountService accountService;
@@ -35,6 +36,7 @@ public class SettingController {
     private void passwordValidator(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(passwordValidator);
     }
+
     @GetMapping(PROFILE)
     private String updateProfile(@CurrentAccount Account account, Model model) {
 
@@ -81,5 +83,22 @@ public class SettingController {
         redirectAttributes.addFlashAttribute("message", "패스워드 변경이 완료되었습니다.");
 
         return "redirect:/" + SETTINGS + PASSWORD;
+    }
+
+    @GetMapping(NOTIFICATIONS)
+    private String updateNotifications(@CurrentAccount Account account, Model model) {
+
+        model.addAttribute("notifications", modelMapper.map(account, Notifications.class));
+        model.addAttribute(account);
+
+        return SETTINGS + NOTIFICATIONS;
+    }
+
+    @PostMapping(NOTIFICATIONS)
+    private String updateNotifications(@CurrentAccount Account account,Notifications notifications, RedirectAttributes redirectAttributes) {
+
+        accountService.updateNotifications(account, notifications);
+        redirectAttributes.addFlashAttribute("message", "알림 설정이 변경되었습니다.");
+        return "redirect:/" + SETTINGS + NOTIFICATIONS;
     }
 }

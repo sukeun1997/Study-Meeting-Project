@@ -1,5 +1,6 @@
 package com.studyforyou_retry.modules.account;
 
+import com.studyforyou_retry.modules.account.setting.Notifications;
 import com.studyforyou_retry.modules.account.setting.Profile;
 import lombok.*;
 
@@ -77,5 +78,14 @@ public class Account {
 
     public void updatePassword(String password) {
         this.password = password;
+    }
+
+    public void updateNotifications(Notifications notifications) {
+        this.studyCreatedByEmail = notifications.isStudyCreatedByEmail();
+        this.studyCreatedByWeb = notifications.isStudyCreatedByWeb();
+        this.studyEnrollmentResultByEmail = notifications.isStudyEnrollmentResultByEmail();
+        this.studyEnrollmentResultByWeb = notifications.isStudyEnrollmentResultByWeb();
+        this.studyUpdatedByEmail= notifications.isStudyUpdatedByEmail();
+        this.studyUpdatedByWeb = notifications.isStudyUpdatedByWeb();
     }
 }

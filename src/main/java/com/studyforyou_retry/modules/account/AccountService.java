@@ -1,5 +1,6 @@
 package com.studyforyou_retry.modules.account;
 
+import com.studyforyou_retry.modules.account.setting.Notifications;
 import com.studyforyou_retry.modules.account.setting.PasswordForm;
 import com.studyforyou_retry.modules.account.setting.Profile;
 import lombok.RequiredArgsConstructor;
@@ -84,6 +85,11 @@ public class AccountService implements UserDetailsService {
     public void updatePassword(Account account, PasswordForm passwordForm) {
         String password = passwordEncoder.encode(passwordForm.getNewPasswordConfirm());
         account.updatePassword(password);
+        accountRepository.save(account);
+    }
+
+    public void updateNotifications(Account account, Notifications notifications) {
+        account.updateNotifications(notifications);
         accountRepository.save(account);
     }
 }
