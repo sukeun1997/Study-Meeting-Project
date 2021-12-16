@@ -3,6 +3,7 @@ package com.studyforyou_retry.modules.account;
 import com.studyforyou_retry.modules.account.setting.Notifications;
 import com.studyforyou_retry.modules.account.setting.Profile;
 import com.studyforyou_retry.modules.tags.Tag;
+import com.studyforyou_retry.modules.zones.Zone;
 import lombok.*;
 
 import javax.persistence.*;
@@ -61,6 +62,8 @@ public class Account {
     @ManyToMany
     Set<Tag> tags = new HashSet<>();
 
+    @ManyToMany
+    Set<Zone> zones = new HashSet<>();
     public void GenerateCheckToken() {
 
         String uuid = UUID.randomUUID().toString();

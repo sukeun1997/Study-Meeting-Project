@@ -4,6 +4,7 @@ import com.studyforyou_retry.modules.account.setting.Notifications;
 import com.studyforyou_retry.modules.account.setting.PasswordForm;
 import com.studyforyou_retry.modules.account.setting.Profile;
 import com.studyforyou_retry.modules.tags.Tag;
+import com.studyforyou_retry.modules.zones.Zone;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -108,17 +109,32 @@ public class AccountService implements UserDetailsService {
         log.info("/logged-in-by-email?email={}&token={}",byEmail.getEmail(), byEmail.getEmailCheckToken());
     }
 
+    @Transactional(readOnly = true)
     public Set<String> findTags(Account account) {
         Account byId = accountRepository.findById(account.getId()).orElseThrow(EntityNotFoundException::new);
         return byId.getTags().stream().map(Tag::getTitle).collect(Collectors.toSet());
     }
 
-    public void updateTags(Account account, Tag tag) {
+    public void addTags(Account account, Tag tag) {
         accountRepository.findById(account.getId()).ifPresent(user -> user.getTags().add(tag));
     }
 
     public void removeTags(Account account, Tag tag) {
         accountRepository.findById(account.getId()).ifPresent(user -> user.getTags().remove(tag));
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> findZones(Account account) {
+        Account byId = accountRepository.findById(account.getId()).orElseThrow(EntityNotFoundException::new);
+        return byId.getZones().stream().map(Zone::toString).collect(Collectors.toList());
+    }
+
+    public void addZones(Account account, Zone zone) {
+        accountRepository.findById(account.getId()).ifPresent(user -> user.getZones().add(zone));
+    }
+
+    public void removeZones(Account account, Zone zone) {
+        accountRepository.findById(account.getId()).ifPresent(user -> user.getZones().remove(zone));
     }
 }
 
