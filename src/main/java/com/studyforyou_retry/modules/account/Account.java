@@ -2,18 +2,26 @@ package com.studyforyou_retry.modules.account;
 
 import com.studyforyou_retry.modules.account.setting.Notifications;
 import com.studyforyou_retry.modules.account.setting.Profile;
+import com.studyforyou_retry.modules.tags.Tag;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Getter @Setter @Builder @EqualsAndHashCode(of = "id")
-@AllArgsConstructor @NoArgsConstructor
+@Getter
+@Setter
+@Builder
+@EqualsAndHashCode(of = "id")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Account {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
     private String bio;
@@ -50,6 +58,8 @@ public class Account {
     private boolean studyUpdatedByWeb;
     private String url;
 
+    @ManyToMany
+    Set<Tag> tags = new HashSet<>();
 
     public void GenerateCheckToken() {
 
@@ -85,7 +95,7 @@ public class Account {
         this.studyCreatedByWeb = notifications.isStudyCreatedByWeb();
         this.studyEnrollmentResultByEmail = notifications.isStudyEnrollmentResultByEmail();
         this.studyEnrollmentResultByWeb = notifications.isStudyEnrollmentResultByWeb();
-        this.studyUpdatedByEmail= notifications.isStudyUpdatedByEmail();
+        this.studyUpdatedByEmail = notifications.isStudyUpdatedByEmail();
         this.studyUpdatedByWeb = notifications.isStudyUpdatedByWeb();
     }
 

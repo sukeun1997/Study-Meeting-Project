@@ -1,22 +1,28 @@
 package com.studyforyou_retry.modules.account.setting;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyforyou_retry.modules.account.Account;
 import com.studyforyou_retry.modules.account.AccountRepository;
 import com.studyforyou_retry.modules.account.AccountService;
 import com.studyforyou_retry.modules.account.CurrentAccount;
+import com.studyforyou_retry.modules.tags.Tag;
+import com.studyforyou_retry.modules.tags.TagForm;
+import com.studyforyou_retry.modules.tags.TagRepository;
+import com.studyforyou_retry.modules.tags.TagService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,11 +35,15 @@ public class SettingController {
     public static final String PASSWORD = "password";
     public static final String NOTIFICATIONS = "notifications";
     public static final String ACCOUNT = "account";
+    public static final String TAGS = "tags";
 
     private final ModelMapper modelMapper;
     private final AccountService accountService;
     private final PasswordValidator passwordValidator;
+    private final ObjectMapper objectMapper;
     private final AccountRepository accountRepository;
+    private final TagRepository tagRepository;
+    private final TagService tagService;
 
     @InitBinder("passwordForm")
     private void passwordValidator(WebDataBinder webDataBinder) {
@@ -134,6 +144,45 @@ public class SettingController {
         redirectAttributes.addFlashAttribute("message", "변경이 완료되었습니다.");
 
         return "redirect:/" + SETTINGS + ACCOUNT;
+    }
+
+    @GetMapping(TAGS)
+    private String updateTags(@CurrentAccount Account account, Model model) throws JsonProcessingException {
+
+        model.addAttribute(account);
+
+        Set<String> whitelist = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toSet());
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(whitelist));
+
+        Set<String> tags = accountService.findTags(account);
+        model.addAttribute("tags", tags);
+
+        return SETTINGS + TAGS;
+    }
+
+    @PostMapping(TAGS+"/add")
+    @ResponseBody
+    private ResponseEntity updateTags(@CurrentAccount Account account, @RequestBody TagForm tagForm) {
+
+        Tag tag = tagService.getTag(tagForm.getTagTitle());
+        accountService.updateTags(account, tag);
+
+        return ResponseEntity.ok().build();
+    }
+
+
+    @PostMapping(TAGS+"/remove")
+    @ResponseBody
+    private ResponseEntity removeTags(@CurrentAccount Account account, @RequestBody TagForm tagForm) {
+
+        Tag tag = tagRepository.findByTitle(tagForm.getTagTitle());
+
+        if (tag == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        accountService.removeTags(account, tag);
+        return ResponseEntity.ok().build();
     }
 
 }
