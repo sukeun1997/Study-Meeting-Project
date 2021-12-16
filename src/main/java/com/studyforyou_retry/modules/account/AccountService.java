@@ -92,5 +92,10 @@ public class AccountService implements UserDetailsService {
         account.updateNotifications(notifications);
         accountRepository.save(account);
     }
+
+    public void updateAccount(Account account, String nickname) {
+        account.updateNickName(nickname);
+        accountRepository.save(account);
+    }
 }
 

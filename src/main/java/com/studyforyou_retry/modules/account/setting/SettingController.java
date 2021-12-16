@@ -1,6 +1,7 @@
 package com.studyforyou_retry.modules.account.setting;
 
 import com.studyforyou_retry.modules.account.Account;
+import com.studyforyou_retry.modules.account.AccountRepository;
 import com.studyforyou_retry.modules.account.AccountService;
 import com.studyforyou_retry.modules.account.CurrentAccount;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +28,12 @@ public class SettingController {
     public static final String PROFILE = "profile";
     public static final String PASSWORD = "password";
     public static final String NOTIFICATIONS = "notifications";
+    public static final String ACCOUNT = "account";
 
     private final ModelMapper modelMapper;
     private final AccountService accountService;
     private final PasswordValidator passwordValidator;
+    private final AccountRepository accountRepository;
 
     @InitBinder("passwordForm")
     private void passwordValidator(WebDataBinder webDataBinder) {
@@ -101,4 +104,36 @@ public class SettingController {
         redirectAttributes.addFlashAttribute("message", "알림 설정이 변경되었습니다.");
         return "redirect:/" + SETTINGS + NOTIFICATIONS;
     }
+
+    @GetMapping(ACCOUNT)
+    private String updateAccount(@CurrentAccount Account account, Model model) {
+
+        model.addAttribute(account);
+        model.addAttribute(new NicknameForm());
+        return SETTINGS + ACCOUNT;
+    }
+
+    @PostMapping(ACCOUNT)
+    private String updateAccount(@CurrentAccount Account account, Model model, @Valid NicknameForm nickNameForm ,
+                                 BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+
+        String nickname = nickNameForm.getNickname();
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute(account);
+            return SETTINGS + ACCOUNT;
+        }
+
+        if (accountRepository.existsByNickname(nickname)) {
+            bindingResult.rejectValue("nickname", "wrong value", "현재 닉네임은 사용하실 수 없습니다.");
+            model.addAttribute(account);
+            return SETTINGS + ACCOUNT;
+        }
+
+        accountService.updateAccount(account, nickname);
+        redirectAttributes.addFlashAttribute("message", "변경이 완료되었습니다.");
+
+        return "redirect:/" + SETTINGS + ACCOUNT;
+    }
+
 }
