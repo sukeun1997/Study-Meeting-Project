@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.securityContext;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -158,5 +160,87 @@ class AccountControllerTest {
                 .andExpect(model().attributeExists("error"))
                 .andExpect(model().attributeExists("email"))
                 .andExpect(view().name("account/check-email"));
+    }
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("프로필 폼")
+    void profileView() throws Exception {
+        mockMvc.perform(get("/profile/test"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attribute("isOwner", true))
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/profile"));
+    }
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("이메일 로그인 링크 보내기 - 성공")
+    void emailLogin() throws Exception {
+        mockMvc.perform(post("/email-login")
+                        .with(csrf())
+                        .param("email", "test@email.com"))
+                .andExpect(status().isOk())
+                .andExpect(view().name(AccountController.ACCOUNT_CHECK_LOGIN_EMAIL))
+                .andExpect(model().attributeExists("email"))
+                .andExpect(model().attributeDoesNotExist("error"));
+    }
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("이메일 로그인 링크 보내기 - 실패 (잘못된 이메일)")
+    void emailLogin_Fail() throws Exception {
+        mockMvc.perform(post("/email-login")
+                        .with(csrf())
+                        .param("email", "tests@email.com"))
+                .andExpect(status().isOk())
+                .andExpect(view().name(AccountController.ACCOUNT_CHECK_LOGIN_EMAIL))
+                .andExpect(model().attributeExists("email"))
+                .andExpect(model().attributeExists("error"));
+    }
+
+    @Test
+    @DisplayName("이메일 로그인 링크 접속 - 성공")
+    void emailLoginCheck() throws Exception {
+
+
+        Account test = accountFactory.createNewAccount("test");
+        test.GenerateCheckToken();
+
+        mockMvc.perform(get("/logged-in-by-email")
+                .param("email", test.getEmail())
+                .param("token", test.getEmailCheckToken()))
+                .andExpect(view().name(AccountController.ACCOUNT_LOGGED_IN_BY_EMAIL))
+                .andExpect(model().attributeDoesNotExist("error"))
+                .andExpect(authenticated());
+    }
+
+    @Test
+    @DisplayName("이메일 로그인 링크 접속 - 실패 (잘못된 이메일)")
+    void emailLoginCheck_Fail() throws Exception {
+
+        Account test = accountFactory.createNewAccount("test");
+        test.GenerateCheckToken();
+        mockMvc.perform(get("/logged-in-by-email")
+                        .param("email", test.getEmail() +"a")
+                        .param("token", test.getEmailCheckToken()))
+                .andExpect(view().name(AccountController.ACCOUNT_LOGGED_IN_BY_EMAIL))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(unauthenticated());
+    }
+
+    @Test
+    @DisplayName("이메일 로그인 링크 접속 - 실패 (잘못된 토큰)")
+    void emailLoginCheck_Fail2() throws Exception {
+
+        Account test = accountFactory.createNewAccount("test");
+        test.GenerateCheckToken();
+
+        mockMvc.perform(get("/logged-in-by-email")
+                        .param("email", test.getEmail())
+                        .param("token", test.getEmailCheckToken()+"a"))
+                .andExpect(view().name(AccountController.ACCOUNT_LOGGED_IN_BY_EMAIL))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(unauthenticated());
     }
 }

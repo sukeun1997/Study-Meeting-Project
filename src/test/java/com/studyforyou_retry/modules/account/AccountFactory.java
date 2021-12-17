@@ -14,15 +14,12 @@ public class AccountFactory {
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
 
-    public void createNewAccount(String nickname) {
+    public Account createNewAccount(String nickname) {
 
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setNickname(nickname);
-        signUpForm.setEmail(nickname +"@test.com");
-        signUpForm.setPassword(nickname+"testtest");
-
-        accountService.createNewAccount(signUpForm);
-//        Account account = modelMapper.map(signUpForm, Account.class);
-//        accountRepository.save(account);
+        return accountRepository.save(Account.builder()
+                .email(nickname + "@email.com")
+                .nickname(nickname)
+                .password(nickname + "asd")
+                .build());
     }
 }

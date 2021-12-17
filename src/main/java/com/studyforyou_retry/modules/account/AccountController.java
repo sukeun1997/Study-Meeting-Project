@@ -122,11 +122,6 @@ public class AccountController {
             return ACCOUNT_CHECK_LOGIN_EMAIL;
         }
 
-        if (!byEmail.canResendEmail()) {
-            model.addAttribute("error", "이메일 로그인은 1시간 마다 가능합니다.");
-            return ACCOUNT_CHECK_LOGIN_EMAIL;
-        }
-
         accountService.sendLoginEmail(byEmail);
         return ACCOUNT_CHECK_LOGIN_EMAIL;
     }

@@ -168,7 +168,7 @@ public class SettingController {
 
     @PostMapping(TAGS + "/add")
     @ResponseBody
-    private ResponseEntity updateTags(@CurrentAccount Account account, @RequestBody TagForm tagForm) {
+    private ResponseEntity addTags(@CurrentAccount Account account, @RequestBody TagForm tagForm) {
 
         Tag tag = tagService.getTag(tagForm.getTagTitle());
         accountService.addTags(account, tag);
