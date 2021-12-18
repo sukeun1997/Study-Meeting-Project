@@ -1,5 +1,8 @@
 package com.studyforyou_retry.modules.account;
 
+import com.studyforyou_retry.infra.config.AppProperties;
+import com.studyforyou_retry.infra.mail.EmailMessage;
+import com.studyforyou_retry.infra.mail.HtmlEmailService;
 import com.studyforyou_retry.modules.account.setting.Notifications;
 import com.studyforyou_retry.modules.account.setting.PasswordForm;
 import com.studyforyou_retry.modules.account.setting.Profile;
@@ -18,6 +21,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import org.yaml.snakeyaml.tokens.TagToken;
 
 import javax.persistence.EntityNotFoundException;
@@ -34,6 +39,9 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final HtmlEmailService htmlEmailService;
+    private final TemplateEngine templateEngine;
+    private final AppProperties appProperties;
 
     public void createNewAccount(SignUpForm signUpForm) {
         signUpForm.setPassword(passwordEncoder.encode(signUpForm.getPassword()));
@@ -81,6 +89,28 @@ public class AccountService implements UserDetailsService {
         account.GenerateCheckToken();
         log.info("/check-email-token?token={}&email={}", account.getEmailCheckToken(), account.getEmail());
         //TODO 인증 이메일 보내기
+        sendSignUpEmail(account);
+
+    }
+
+    private void sendSignUpEmail(Account account) {
+        Context context = new Context();
+
+        context.setVariable("nickname", account.getNickname());
+        context.setVariable("message", "스터디 포유 이메일 인증을 위해 아래 링크를 통해 접속해 주세요");
+        context.setVariable("link", "/check-email-token?token="+account.getEmailCheckToken()+"&email="+account.getEmail());
+        context.setVariable("host",appProperties.getHost());
+        context.setVariable("linkName","스터디 포유 이메일 인증");
+
+        String process = templateEngine.process("mail/simple-link", context);
+
+
+        EmailMessage message = EmailMessage.builder().to(account.getEmail())
+                .message(process)
+                .subject("스터디 포유 이메일 인증")
+                .build();
+
+        htmlEmailService.sendEmail(message);
     }
 
     public void updateProfile(Account account, Profile profile) {
