@@ -4,6 +4,7 @@ import com.studyforyou_retry.modules.account.Account;
 import com.studyforyou_retry.modules.account.AccountRepository;
 import com.studyforyou_retry.modules.account.UserAccount;
 import com.studyforyou_retry.modules.tags.Tag;
+import com.studyforyou_retry.modules.zones.Zone;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.access.AccessDeniedException;
@@ -51,6 +52,7 @@ public class StudyService {
         study.updateDescription(studyDescriptionForm);
     }
 
+    @Transactional(readOnly = true)
     public Study getStudy(String path) {
         Study study = studyRepository.findStudyWithAllByPath(path);
         isExistStudy(study);
@@ -69,6 +71,7 @@ public class StudyService {
         study.disableBanner();
     }
 
+    @Transactional(readOnly = true)
     public Study getStudyWithManagersAndTags(Account account, String path) {
 
         Study study = studyRepository.findStudyWithManagerAndTagsByPath(path);
@@ -77,10 +80,25 @@ public class StudyService {
     }
 
     public void addTag(Study study, Tag tag) {
-        study.addTAG(tag);
+        study.addTags(tag);
     }
 
     public void removeTags(Study study, Tag tag) {
         study.removeTags(tag);
+    }
+
+    @Transactional(readOnly = true)
+    public Study getStudyWithManagersAndZones(Account account, String path) {
+        Study study = studyRepository.findStudyWithManagerAndZonesByPath(path);
+        isNotManager(account, study);
+        return study;
+    }
+
+    public void addZones(Study study, Zone zone) {
+        study.addZones(zone);
+    }
+
+    public void removeZones(Study study, Zone zone) {
+        study.removeZones(zone);
     }
 }

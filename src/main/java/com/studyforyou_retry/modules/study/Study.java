@@ -82,11 +82,19 @@ public class Study {
         this.useBanner = false;
     }
 
-    public void addTAG(Tag tag) {
+    public void addTags(Tag tag) {
         this.getTags().add(tag);
     }
 
     public void removeTags(Tag tag) {
         this.getTags().remove(tag);
+    }
+
+    public void addZones(Zone zone) {
+        getZones().add(zone);
+    }
+
+    public void removeZones(Zone zone) {
+        getZones().remove(zone);
     }
 }

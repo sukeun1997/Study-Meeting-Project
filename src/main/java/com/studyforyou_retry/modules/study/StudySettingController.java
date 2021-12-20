@@ -8,6 +8,9 @@ import com.studyforyou_retry.modules.tags.Tag;
 import com.studyforyou_retry.modules.tags.TagForm;
 import com.studyforyou_retry.modules.tags.TagRepository;
 import com.studyforyou_retry.modules.tags.TagService;
+import com.studyforyou_retry.modules.zones.Zone;
+import com.studyforyou_retry.modules.zones.ZoneForm;
+import com.studyforyou_retry.modules.zones.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
@@ -30,16 +33,18 @@ public class StudySettingController {
     public static final String STUDY_DESCRIPTION = "study/description";
     public static final String STUDY_BANNER = "study/banner";
     public static final String STUDY_TAGS = "study/tags";
+    public static final String STUDY_ZONES = "study/zones";
     private final TagRepository tagRepository;
     private final StudyService studyService;
     private final ObjectMapper objectMapper;
     private final ModelMapper modelMapper;
     private final TagService tagService;
+    private final ZoneRepository zoneRepository;
 
     @GetMapping("description")
     private String updateDescription(@CurrentAccount Account account, @PathVariable String path, Model model) {
 
-        Study study = studyService.getStudyWithManagers(account,path);
+        Study study = studyService.getStudyWithManagers(account, path);
 
         model.addAttribute(study);
         model.addAttribute(modelMapper.map(study, StudyDescriptionForm.class));
@@ -52,7 +57,7 @@ public class StudySettingController {
     private String updateDescription(@CurrentAccount Account account, @PathVariable String path,
                                      @Valid StudyDescriptionForm studyDescriptionForm, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
 
-        Study study = studyService.getStudyWithManagers(account,path);
+        Study study = studyService.getStudyWithManagers(account, path);
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(account);
@@ -63,7 +68,7 @@ public class StudySettingController {
         studyService.updateDescription(study, studyDescriptionForm);
         redirectAttributes.addFlashAttribute("message", "소개가 변경 되었습니다.");
 
-        return "redirect:/study/"+study.getEncodePath(path)+"/settings/description";
+        return "redirect:/study/" + study.getEncodePath(path) + "/settings/description";
     }
 
     @GetMapping("banner")
@@ -109,7 +114,7 @@ public class StudySettingController {
     }
 
     @GetMapping("tags")
-    private String tagsView(@CurrentAccount Account account, Model model,@PathVariable String path) throws JsonProcessingException {
+    private String tagsView(@CurrentAccount Account account, Model model, @PathVariable String path) throws JsonProcessingException {
 
         Study study = studyService.getStudyWithManagers(account, path);
 
@@ -149,6 +154,47 @@ public class StudySettingController {
         }
 
         studyService.removeTags(study, tag);
+
+        return ResponseEntity.ok().build();
+    }
+
+
+    @GetMapping("zones")
+    private String zonesView(@CurrentAccount Account account, @PathVariable String path, Model model) throws JsonProcessingException {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+
+        Set<String> whitelist = zoneRepository.findAll().stream().map(Zone::toString).collect(Collectors.toSet());
+
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(whitelist));
+        Set<String> zones = study.getZones().stream().map(Zone::toString).collect(Collectors.toSet());
+        model.addAttribute("zones", zones);
+        return STUDY_ZONES;
+    }
+
+    @PostMapping("zones/add")
+    @ResponseBody
+    private ResponseEntity addZones(@CurrentAccount Account account, @RequestBody ZoneForm zoneForm, @PathVariable String path) {
+
+        Study study = studyService.getStudyWithManagersAndZones(account, path);
+        Zone zone = zoneRepository.findByCityAndLocalNameOfCity(zoneForm.getCity(), zoneForm.getLocalNameOfCity());
+
+        studyService.addZones(study, zone);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("zones/remove")
+    @ResponseBody
+    private ResponseEntity removeZones(@CurrentAccount Account account, @RequestBody ZoneForm zoneForm, @PathVariable String path) {
+
+        Study study = studyService.getStudyWithManagersAndZones(account, path);
+        Zone zone = zoneRepository.findByCityAndLocalNameOfCity(zoneForm.getCity(), zoneForm.getLocalNameOfCity());
+
+        studyService.removeZones(study, zone);
 
         return ResponseEntity.ok().build();
     }
