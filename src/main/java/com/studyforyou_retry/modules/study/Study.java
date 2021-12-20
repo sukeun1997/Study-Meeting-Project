@@ -7,6 +7,9 @@ import com.studyforyou_retry.modules.zones.Zone;
 import lombok.*;
 
 import javax.persistence.*;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -58,4 +61,12 @@ public class Study {
         return managers.contains(userAccount.getAccount());
     }
 
+    public void updateDescription(StudyDescriptionForm studyDescriptionForm) {
+        this.shortDescription = studyDescriptionForm.getShortDescription();
+        this.fullDescription = studyDescriptionForm.getFullDescription();
+    }
+
+    public String getEncodePath(String path) {
+        return URLEncoder.encode(path, StandardCharsets.UTF_8);
+    }
 }

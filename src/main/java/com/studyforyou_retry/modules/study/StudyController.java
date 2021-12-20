@@ -21,6 +21,7 @@ public class StudyController {
     public static final String NEW_STUDY = "/new-study";
     public static final String STUDY_FORM = "study/form";
     public static final String STUDY_VIEW = "study/view";
+    public static final String STUDY_MEMBERS = "study/members";
 
     private final StudyService studyService;
     private final StudyRepository studyRepository;
@@ -56,4 +57,19 @@ public class StudyController {
 
         return STUDY_VIEW;
     }
+
+
+    @GetMapping("study/{path}/members")
+    private String studyMemberViw(@CurrentAccount Account account, @PathVariable String path, Model model) {
+
+        Study study = studyRepository.findStudyWithAllByPath(path);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+
+        return STUDY_MEMBERS;
+    }
+
+
+
 }
