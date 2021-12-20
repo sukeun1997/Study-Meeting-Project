@@ -3,6 +3,7 @@ package com.studyforyou_retry.modules.study;
 import com.studyforyou_retry.modules.account.Account;
 import com.studyforyou_retry.modules.account.AccountRepository;
 import com.studyforyou_retry.modules.account.UserAccount;
+import com.studyforyou_retry.modules.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.access.AccessDeniedException;
@@ -66,5 +67,20 @@ public class StudyService {
 
     public void disableBanner(Study study) {
         study.disableBanner();
+    }
+
+    public Study getStudyWithManagersAndTags(Account account, String path) {
+
+        Study study = studyRepository.findStudyWithManagerAndTagsByPath(path);
+        isNotManager(account, study);
+        return study;
+    }
+
+    public void addTag(Study study, Tag tag) {
+        study.addTAG(tag);
+    }
+
+    public void removeTags(Study study, Tag tag) {
+        study.removeTags(tag);
     }
 }

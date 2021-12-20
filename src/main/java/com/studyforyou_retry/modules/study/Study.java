@@ -81,4 +81,12 @@ public class Study {
     public void disableBanner() {
         this.useBanner = false;
     }
+
+    public void addTAG(Tag tag) {
+        this.getTags().add(tag);
+    }
+
+    public void removeTags(Tag tag) {
+        this.getTags().remove(tag);
+    }
 }
