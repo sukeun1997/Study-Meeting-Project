@@ -50,7 +50,7 @@ public class StudyController {
 
     @GetMapping("study/{path}")
     private String studyView(@CurrentAccount Account account, @PathVariable String path, Model model) {
-        Study study = studyRepository.findStudyWithAllByPath(path);
+        Study study = studyService.getStudy(path);
 
         model.addAttribute(account);
         model.addAttribute(study);
@@ -62,13 +62,14 @@ public class StudyController {
     @GetMapping("study/{path}/members")
     private String studyMemberViw(@CurrentAccount Account account, @PathVariable String path, Model model) {
 
-        Study study = studyRepository.findStudyWithAllByPath(path);
+        Study study = studyService.getStudy(path);
 
         model.addAttribute(account);
         model.addAttribute(study);
 
         return STUDY_MEMBERS;
     }
+
 
 
 

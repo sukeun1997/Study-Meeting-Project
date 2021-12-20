@@ -29,9 +29,7 @@ public class StudyService {
 
     public Study getStudyWithManagers(Account account, String path) {
 
-        Study study = studyRepository.findStudyWithManagerByPath(path);
-
-        isExistStudy(study);
+        Study study = this.getStudy(path);
         isNotManager(account, study);
         return study;
     }
@@ -50,5 +48,23 @@ public class StudyService {
 
     public void updateDescription(Study study, StudyDescriptionForm studyDescriptionForm) {
         study.updateDescription(studyDescriptionForm);
+    }
+
+    public Study getStudy(String path) {
+        Study study = studyRepository.findStudyWithAllByPath(path);
+        isExistStudy(study);
+        return study;
+    }
+
+    public void updateBanner(Study study, String image) {
+        study.updateBanner(image);
+    }
+
+    public void enableBanner(Study study) {
+        study.enableBanner();
+    }
+
+    public void disableBanner(Study study) {
+        study.disableBanner();
     }
 }

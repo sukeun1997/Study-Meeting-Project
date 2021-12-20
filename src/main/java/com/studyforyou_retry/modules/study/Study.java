@@ -69,4 +69,16 @@ public class Study {
     public String getEncodePath(String path) {
         return URLEncoder.encode(path, StandardCharsets.UTF_8);
     }
+
+    public void updateBanner(String image) {
+        this.image = image;
+    }
+
+    public void enableBanner() {
+        this.useBanner = true;
+    }
+
+    public void disableBanner() {
+        this.useBanner = false;
+    }
 }

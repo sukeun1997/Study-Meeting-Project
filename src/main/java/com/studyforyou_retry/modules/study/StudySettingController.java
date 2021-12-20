@@ -21,6 +21,7 @@ import javax.validation.Valid;
 public class StudySettingController {
 
     public static final String STUDY_DESCRIPTION = "study/description";
+    public static final String STUDY_BANNER = "study/banner";
     private final StudyRepository studyRepository;
     private final StudyService studyService;
     private final ModelMapper modelMapper;
@@ -53,5 +54,47 @@ public class StudySettingController {
         redirectAttributes.addFlashAttribute("message", "소개가 변경 되었습니다.");
 
         return "redirect:/study/"+study.getEncodePath(path)+"/settings/description";
+    }
+
+    @GetMapping("banner")
+    private String updateBanner(@CurrentAccount Account account, Model model, @PathVariable String path) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+
+        return STUDY_BANNER;
+    }
+
+    @PostMapping("banner")
+    private String updateBanner(@CurrentAccount Account account, @PathVariable String path, String image, RedirectAttributes redirectAttributes) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        studyService.updateBanner(study, image);
+        redirectAttributes.addFlashAttribute("message", "배너 이미지가 수정 되었습니다.");
+
+        return "redirect:/study/" + study.getEncodePath(path) + "/settings/banner";
+    }
+
+    @PostMapping("banner/enable")
+    private String enableBanner(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        studyService.enableBanner(study);
+        redirectAttributes.addFlashAttribute("message", "배너 설정이 변경되었습니다.");
+        return "redirect:/study/" + study.getEncodePath(path) + "/settings/banner";
+    }
+
+    @PostMapping("banner/disable")
+    private String disableBanner(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        studyService.disableBanner(study);
+        redirectAttributes.addFlashAttribute("message", "배너 설정이 변경되었습니다.");
+        return "redirect:/study/" + study.getEncodePath(path) + "/settings/banner";
     }
 }
