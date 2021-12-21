@@ -43,6 +43,12 @@ public class StudyController {
             return STUDY_FORM;
         }
 
+        if (studyRepository.existsByPath(studyForm.getPath())) {
+            model.addAttribute(account);
+            bindingResult.rejectValue("path", "wrong value", "해당 경로는 사용할 수 없습니다.");
+            return STUDY_FORM;
+        }
+
 
         studyService.createStudy(account, studyForm);
         return "redirect:/study/"+ URLEncoder.encode(studyForm.getPath(), StandardCharsets.UTF_8);
@@ -60,7 +66,7 @@ public class StudyController {
 
 
     @GetMapping("study/{path}/members")
-    private String studyMemberViw(@CurrentAccount Account account, @PathVariable String path, Model model) {
+    private String studyMemberView(@CurrentAccount Account account, @PathVariable String path, Model model) {
 
         Study study = studyService.getStudy(path);
 

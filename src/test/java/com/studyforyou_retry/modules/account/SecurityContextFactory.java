@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
 
 import java.lang.annotation.Annotation;
@@ -14,18 +15,20 @@ import java.lang.annotation.Annotation;
 public class SecurityContextFactory implements WithSecurityContextFactory<WithAccount> {
 
     private final AccountService accountService;
+    private final PasswordEncoder passwordEncoder;
+    private final AccountRepository accountRepository;
 
     @Override
     public SecurityContext createSecurityContext(WithAccount withAccount) {
 
         String nickname = withAccount.value();
 
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setNickname(nickname);
-        signUpForm.setEmail(nickname +"@email.com");
-        signUpForm.setPassword("testtest");
+        Account account= Account.builder().nickname(nickname)
+                .email(nickname + "@email.com")
+                .password(passwordEncoder.encode("testtest"))
+                .build();
 
-        accountService.createNewAccount(signUpForm);
+        accountRepository.save(account);
 
         UserDetails userDetailsService = accountService.loadUserByUsername(nickname);
 

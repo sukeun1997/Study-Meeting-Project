@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 public class StudyService {
 
     private final StudyRepository studyRepository;
-    private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
 
     public void createStudy(Account account, StudyForm studyForm) {
