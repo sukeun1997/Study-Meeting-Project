@@ -142,4 +142,12 @@ public class StudyService {
     public boolean canRecruit(Study study) {
         return study.getRecruitDateTime().isBefore(LocalDateTime.now().minusHours(1));
     }
+
+    public void joinStudy(Study study, Account account) {
+        study.joinStudy(account);
+    }
+
+    public void leaveStudy(Study study, Account account) {
+        study.leaveStudy(account);
+    }
 }

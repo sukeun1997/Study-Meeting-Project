@@ -56,7 +56,9 @@ public class Study {
     }
 
     public boolean isJoinable(UserAccount userAccount) {
-        return published && !closed && recruiting && !members.contains(userAccount.getAccount());
+        return published && !closed && recruiting && !members.contains(userAccount.getAccount())
+                && !managers.contains(userAccount.getAccount());
+
     }
 
     public boolean isMember(UserAccount userAccount) {
@@ -153,4 +155,21 @@ public class Study {
             recruitDateTime = LocalDateTime.now();
         }
     }
+
+    public void joinStudy(Account account) {
+        if (isJoinable(new UserAccount(account))) {
+            getMembers().add(account);
+        }
+    }
+
+    public void leaveStudy(Account account) {
+        if (canLeave(account)) {
+            getMembers().remove(account);
+        }
+    }
+
+    private boolean canLeave(Account account) {
+        return members.contains(account) && !closed;
+    }
+
 }

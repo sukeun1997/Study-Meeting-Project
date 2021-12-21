@@ -71,6 +71,30 @@ public class StudyController {
     }
 
 
+    @GetMapping("study/{path}/join")
+    private String joinStudy(@CurrentAccount Account account, @PathVariable String path, Model model) {
+
+        Study study = studyService.getStudy(path);
+
+        studyService.joinStudy(study, account);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+
+        return STUDY_MEMBERS;
+    }
+
+    @GetMapping("study/{path}/leave")
+    private String leaveStudy(@CurrentAccount Account account, @PathVariable String path, Model model) {
+
+        Study study = studyService.getStudy(path);
+
+        studyService.leaveStudy(study, account);
+        model.addAttribute(account);
+        model.addAttribute(study);
+
+        return STUDY_MEMBERS;
+    }
 
 
 }
