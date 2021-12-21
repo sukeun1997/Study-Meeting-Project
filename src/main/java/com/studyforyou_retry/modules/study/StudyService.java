@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 
 @Service
 @Transactional
@@ -128,5 +129,17 @@ public class StudyService {
 
     public void deleteStudy(Study study) {
         studyRepository.delete(study);
+    }
+
+    public void recruitStart(Study study) {
+        study.recruitStart();
+    }
+
+    public void recruitStop(Study study) {
+        study.recruitStop();
+    }
+
+    public boolean canRecruit(Study study) {
+        return study.getRecruitDateTime().isBefore(LocalDateTime.now().minusHours(1));
     }
 }

@@ -270,6 +270,37 @@ public class StudySettingController {
 
         return "redirect:/";
     }
+
+    @PostMapping("/recruit/start")
+    private String recruitStart(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        if (!studyService.canRecruit(study)) {
+            redirectAttributes.addFlashAttribute("message", "팀원 모집 설정 변경은 1시간마다 가능합니다.");
+            return "redirect:/study/" + study.getEncodePath(path) + "/settings/study";
+        }
+        
+        studyService.recruitStart(study);
+        redirectAttributes.addFlashAttribute("message", "팀원 모집 설정이 변경되었습니다.");
+        return "redirect:/study/" + study.getEncodePath(path) + "/settings/study";
+    }
+
+    @PostMapping("/recruit/stop")
+    private String recruitStop(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        if (!studyService.canRecruit(study)) {
+            redirectAttributes.addFlashAttribute("message", "팀원 모집 설정 변경은 1시간마다 가능합니다.");
+            return "redirect:/study/" + study.getEncodePath(path) + "/settings/study";
+        }
+
+        studyService.recruitStop(study);
+        redirectAttributes.addFlashAttribute("message", "팀원 모집 설정이 변경되었습니다.");
+        return "redirect:/study/" + study.getEncodePath(path) + "/settings/study";
+    }
+
     private boolean isExistsByTitle(String newTitle) {
         return studyRepository.existsByTitle(newTitle);
     }

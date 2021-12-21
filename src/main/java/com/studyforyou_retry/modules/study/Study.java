@@ -31,7 +31,10 @@ public class Study {
     private boolean closed;
     private boolean recruiting;
 
+
     private LocalDateTime closedDateTime;
+
+    private LocalDateTime recruitDateTime;
     @Lob
     private String image;
 
@@ -135,5 +138,19 @@ public class Study {
 
     public void updateTitle(String newTitle) {
         this.title = newTitle;
+    }
+
+    public void recruitStart() {
+        if (!closed && published && !recruiting) {
+            this.recruiting = true;
+            this.recruitDateTime = LocalDateTime.now();
+        }
+    }
+
+    public void recruitStop() {
+        if (!closed && published && recruiting) {
+            this.recruiting = false;
+            recruitDateTime = LocalDateTime.now();
+        }
     }
 }
