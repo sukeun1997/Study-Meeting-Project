@@ -101,4 +101,12 @@ public class StudyService {
     public void removeZones(Study study, Zone zone) {
         study.removeZones(zone);
     }
+
+    public void publishStudy(Study study) {
+        study.publish();
+    }
+
+    public void closeStudy(Study study) {
+        study.close();
+    }
 }

@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,6 +30,8 @@ public class Study {
     private boolean published;
     private boolean closed;
     private boolean recruiting;
+
+    private LocalDateTime closedDateTime;
     @Lob
     private String image;
 
@@ -96,5 +99,32 @@ public class Study {
 
     public void removeZones(Zone zone) {
         getZones().remove(zone);
+    }
+
+
+    public boolean isRemovable() {
+        return published && !closed && !recruiting;
+    }
+
+    public void publish() {
+        if (canPublish()) {
+            published = true;
+            closed = false;
+        }
+    }
+
+    private boolean canPublish() {
+        return !published && !closed;
+    }
+
+    public void close() {
+        if (canClose()) {
+            published = false;
+            closed = true;
+        }
+    }
+
+    private boolean canClose() {
+        return published && !closed;
     }
 }

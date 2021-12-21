@@ -34,6 +34,7 @@ public class StudySettingController {
     public static final String STUDY_BANNER = "study/banner";
     public static final String STUDY_TAGS = "study/tags";
     public static final String STUDY_ZONES = "study/zones";
+    public static final String STUDY_STATUS = "study/status";
     private final TagRepository tagRepository;
     private final StudyService studyService;
     private final ObjectMapper objectMapper;
@@ -198,4 +199,38 @@ public class StudySettingController {
 
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("study")
+    private String statusView(@CurrentAccount Account account, Model model, @PathVariable String path) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+
+        return STUDY_STATUS;
+    }
+
+    @PostMapping("study/publish")
+    private String studyPublish(@CurrentAccount Account account,@PathVariable String path, RedirectAttributes redirectAttributes) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        studyService.publishStudy(study);
+
+        redirectAttributes.addFlashAttribute("message", "스터디 공개 설정이 변경이 완료되었습니다.");
+        return "redirect:/study/" + study.getEncodePath(path) + "/settings/study";
+    }
+
+    @PostMapping("study/close")
+    private String studyClose(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
+
+        Study study = studyService.getStudyWithManagers(account, path);
+
+        studyService.closeStudy(study);
+        redirectAttributes.addFlashAttribute("message", "스터디 공개 설정이 변경이 완료되었습니다.");
+        return "redirect:/study/" + study.getEncodePath(path) + "/settings/study";
+    }
+
 }
+
