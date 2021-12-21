@@ -29,7 +29,7 @@ public class StudyService {
     }
 
 
-    public Study getStudyWithManagers(Account account, String path) {
+    public Study getStudyManagers(Account account, String path) {
 
         Study study = this.getStudy(path);
         isNotManager(account, study);
@@ -94,6 +94,13 @@ public class StudyService {
         return study;
     }
 
+    @Transactional(readOnly = true)
+    public Study getStudyWithManagers(Account account, String path) {
+        Study study = studyRepository.findStudyWithManagerByPath(path);
+        isNotManager(account, study);
+        return study;
+    }
+
     public void addZones(Study study, Zone zone) {
         study.addZones(zone);
     }
@@ -108,5 +115,18 @@ public class StudyService {
 
     public void closeStudy(Study study) {
         study.close();
+    }
+
+    public void updatePath(Study study, String newPath) {
+        study.updatePath(newPath);
+    }
+
+    public void updateTitle(Study study, String newTitle) {
+        study.updateTitle(newTitle);
+
+    }
+
+    public void deleteStudy(Study study) {
+        studyRepository.delete(study);
     }
 }

@@ -103,7 +103,8 @@ public class Study {
 
 
     public boolean isRemovable() {
-        return published && !closed && !recruiting;
+        return !published && closed && !recruiting;
+        //todo 모임 했던 여부 시간으로 체크
     }
 
     public void publish() {
@@ -126,5 +127,13 @@ public class Study {
 
     private boolean canClose() {
         return published && !closed;
+    }
+
+    public void updatePath(String newPath) {
+        this.path = newPath;
+    }
+
+    public void updateTitle(String newTitle) {
+        this.title = newTitle;
     }
 }
