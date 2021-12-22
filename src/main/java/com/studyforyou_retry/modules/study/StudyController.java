@@ -2,7 +2,6 @@ package com.studyforyou_retry.modules.study;
 
 import com.studyforyou_retry.modules.account.Account;
 import com.studyforyou_retry.modules.account.CurrentAccount;
-import com.studyforyou_retry.modules.event.EventForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -57,7 +56,7 @@ public class StudyController {
 
     @GetMapping("study/{path}")
     private String studyView(@CurrentAccount Account account, @PathVariable String path, Model model) {
-        Study study = studyService.getStudy(path);
+        Study study = studyService.getStudyAll(path);
 
         model.addAttribute(account);
         model.addAttribute(study);
@@ -69,7 +68,7 @@ public class StudyController {
     @GetMapping("study/{path}/members")
     private String studyMemberView(@CurrentAccount Account account, @PathVariable String path, Model model) {
 
-        Study study = studyService.getStudy(path);
+        Study study = studyService.getStudyAll(path);
 
         model.addAttribute(account);
         model.addAttribute(study);
@@ -81,7 +80,7 @@ public class StudyController {
     @GetMapping("study/{path}/join")
     private String joinStudy(@CurrentAccount Account account, @PathVariable String path, Model model) {
 
-        Study study = studyService.getStudy(path);
+        Study study = studyService.getStudyAll(path);
 
         studyService.joinStudy(study, account);
 
@@ -94,7 +93,7 @@ public class StudyController {
     @GetMapping("study/{path}/leave")
     private String leaveStudy(@CurrentAccount Account account, @PathVariable String path, Model model) {
 
-        Study study = studyService.getStudy(path);
+        Study study = studyService.getStudyAll(path);
 
         studyService.leaveStudy(study, account);
         model.addAttribute(account);

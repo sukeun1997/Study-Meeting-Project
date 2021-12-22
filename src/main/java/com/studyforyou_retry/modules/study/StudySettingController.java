@@ -45,7 +45,7 @@ public class StudySettingController {
     @GetMapping("description")
     private String updateDescription(@CurrentAccount Account account, @PathVariable String path, Model model) {
 
-        Study study = studyService.getStudyManagers(account, path);
+        Study study = studyService.getStudyAllByManagers(account, path);
 
         model.addAttribute(study);
         model.addAttribute(modelMapper.map(study, StudyDescriptionForm.class));
@@ -58,7 +58,7 @@ public class StudySettingController {
     private String updateDescription(@CurrentAccount Account account, @PathVariable String path,
                                      @Valid StudyDescriptionForm studyDescriptionForm, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
 
-        Study study = studyService.getStudyManagers(account, path);
+        Study study = studyService.getStudyAllByManagers(account, path);
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(account);
@@ -75,7 +75,7 @@ public class StudySettingController {
     @GetMapping("banner")
     private String updateBanner(@CurrentAccount Account account, Model model, @PathVariable String path) {
 
-        Study study = studyService.getStudyManagers(account, path);
+        Study study = studyService.getStudyAllByManagers(account, path);
 
         model.addAttribute(account);
         model.addAttribute(study);
@@ -86,7 +86,7 @@ public class StudySettingController {
     @PostMapping("banner")
     private String updateBanner(@CurrentAccount Account account, @PathVariable String path, String image, RedirectAttributes redirectAttributes) {
 
-        Study study = studyService.getStudyManagers(account, path);
+        Study study = studyService.getStudyAllByManagers(account, path);
 
         studyService.updateBanner(study, image);
         redirectAttributes.addFlashAttribute("message", "배너 이미지가 수정 되었습니다.");
@@ -97,7 +97,7 @@ public class StudySettingController {
     @PostMapping("banner/enable")
     private String enableBanner(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
 
-        Study study = studyService.getStudyManagers(account, path);
+        Study study = studyService.getStudyAllByManagers(account, path);
 
         studyService.enableBanner(study);
         redirectAttributes.addFlashAttribute("message", "배너 설정이 변경되었습니다.");
@@ -107,7 +107,7 @@ public class StudySettingController {
     @PostMapping("banner/disable")
     private String disableBanner(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
 
-        Study study = studyService.getStudyManagers(account, path);
+        Study study = studyService.getStudyAllByManagers(account, path);
 
         studyService.disableBanner(study);
         redirectAttributes.addFlashAttribute("message", "배너 설정이 변경되었습니다.");
@@ -117,7 +117,7 @@ public class StudySettingController {
     @GetMapping("tags")
     private String tagsView(@CurrentAccount Account account, Model model, @PathVariable String path) throws JsonProcessingException {
 
-        Study study = studyService.getStudyManagers(account, path);
+        Study study = studyService.getStudyAllByManagers(account, path);
 
         model.addAttribute(account);
         model.addAttribute(study);
@@ -135,7 +135,7 @@ public class StudySettingController {
     @ResponseBody
     private ResponseEntity addTags(@CurrentAccount Account account, @RequestBody TagForm tagForm, @PathVariable String path) {
 
-        Study study = studyService.getStudyWithManagersAndTags(account, path);
+        Study study = studyService.getStudyWithManagersAndTagsByManagers(account, path);
         Tag tag = tagService.getNewTag(tagForm.getTagTitle());
 
         studyService.addTag(study, tag);
@@ -147,7 +147,7 @@ public class StudySettingController {
     @ResponseBody
     private ResponseEntity removeTags(@CurrentAccount Account account, @RequestBody TagForm tagForm, @PathVariable String path) {
 
-        Study study = studyService.getStudyWithManagersAndTags(account, path);
+        Study study = studyService.getStudyWithManagersAndTagsByManagers(account, path);
         Tag tag = tagRepository.findByTitle(tagForm.getTagTitle());
 
         if (tag == null) {
@@ -163,7 +163,7 @@ public class StudySettingController {
     @GetMapping("zones")
     private String zonesView(@CurrentAccount Account account, @PathVariable String path, Model model) throws JsonProcessingException {
 
-        Study study = studyService.getStudyManagers(account, path);
+        Study study = studyService.getStudyAllByManagers(account, path);
 
         model.addAttribute(account);
         model.addAttribute(study);
@@ -180,7 +180,7 @@ public class StudySettingController {
     @ResponseBody
     private ResponseEntity addZones(@CurrentAccount Account account, @RequestBody ZoneForm zoneForm, @PathVariable String path) {
 
-        Study study = studyService.getStudyWithManagersAndZones(account, path);
+        Study study = studyService.getStudyWithManagersAndZonesByManagers(account, path);
         Zone zone = zoneRepository.findByCityAndLocalNameOfCity(zoneForm.getCity(), zoneForm.getLocalNameOfCity());
 
         studyService.addZones(study, zone);
@@ -192,7 +192,7 @@ public class StudySettingController {
     @ResponseBody
     private ResponseEntity removeZones(@CurrentAccount Account account, @RequestBody ZoneForm zoneForm, @PathVariable String path) {
 
-        Study study = studyService.getStudyWithManagersAndZones(account, path);
+        Study study = studyService.getStudyWithManagersAndZonesByManagers(account, path);
         Zone zone = zoneRepository.findByCityAndLocalNameOfCity(zoneForm.getCity(), zoneForm.getLocalNameOfCity());
 
         studyService.removeZones(study, zone);
@@ -203,7 +203,7 @@ public class StudySettingController {
     @GetMapping("study")
     private String statusView(@CurrentAccount Account account, Model model, @PathVariable String path) {
 
-        Study study = studyService.getStudyManagers(account, path);
+        Study study = studyService.getStudyAllByManagers(account, path);
 
         model.addAttribute(account);
         model.addAttribute(study);
@@ -214,7 +214,7 @@ public class StudySettingController {
     @PostMapping("study/publish")
     private String studyPublish(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
 
-        Study study = studyService.getStudyWithManagers(account, path);
+        Study study = studyService.getStudyWithManagersByManagers(account, path);
 
         studyService.publishStudy(study);
 
@@ -225,7 +225,7 @@ public class StudySettingController {
     @PostMapping("study/close")
     private String studyClose(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
 
-        Study study = studyService.getStudyWithManagers(account, path);
+        Study study = studyService.getStudyWithManagersByManagers(account, path);
 
         studyService.closeStudy(study);
         redirectAttributes.addFlashAttribute("message", "스터디 공개 설정이 변경이 완료되었습니다.");
@@ -235,7 +235,7 @@ public class StudySettingController {
     @PostMapping("study/path")
     private String updatePath(@CurrentAccount Account account, @PathVariable String path, @Valid StudyNewPathForm studyNewPathForm, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
-        Study study = studyService.getStudyWithManagers(account, path);
+        Study study = studyService.getStudyWithManagersByManagers(account, path);
 
         String newPath = studyNewPathForm.getNewPath();
 
@@ -256,7 +256,7 @@ public class StudySettingController {
     @PostMapping("study/title")
     private String updateTitle(@CurrentAccount Account account, @PathVariable String path, @Valid StudyNewTitleForm studyNewTitleForm, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
-        Study study = studyService.getStudyWithManagers(account, path);
+        Study study = studyService.getStudyWithManagersByManagers(account, path);
 
         String newTitle = studyNewTitleForm.getNewTitle();
 
@@ -277,7 +277,7 @@ public class StudySettingController {
     @PostMapping("study/remove")
     private String removeStudy(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
 
-        Study study = studyService.getStudyWithManagers(account, path);
+        Study study = studyService.getStudyWithManagersByManagers(account, path);
 
         if (!study.isRemovable()) {
             redirectAttributes.addFlashAttribute("message", "스터디를 삭제 할 수 없습니다.");
@@ -292,7 +292,7 @@ public class StudySettingController {
     @PostMapping("/recruit/start")
     private String recruitStart(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
 
-        Study study = studyService.getStudyWithManagers(account, path);
+        Study study = studyService.getStudyWithManagersByManagers(account, path);
 
         if (!studyService.canRecruit(study)) {
             redirectAttributes.addFlashAttribute("message", "팀원 모집 설정 변경은 1시간마다 가능합니다.");
@@ -307,7 +307,7 @@ public class StudySettingController {
     @PostMapping("/recruit/stop")
     private String recruitStop(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
 
-        Study study = studyService.getStudyWithManagers(account, path);
+        Study study = studyService.getStudyWithManagersByManagers(account, path);
 
         if (!studyService.canRecruit(study)) {
             redirectAttributes.addFlashAttribute("message", "팀원 모집 설정 변경은 1시간마다 가능합니다.");

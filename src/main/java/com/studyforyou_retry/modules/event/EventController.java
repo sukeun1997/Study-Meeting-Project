@@ -26,7 +26,7 @@ public class EventController {
     @GetMapping("study/{path}/new-event")
     private String createEvent(@CurrentAccount Account account, @PathVariable String path, Model model) {
 
-        Study study = studyService.getStudyWithManagers(account, path);
+        Study study = studyService.getStudyWithManagersByManagers(account, path);
         model.addAttribute(account);
         model.addAttribute(study);
         model.addAttribute(new EventForm());
@@ -35,16 +35,27 @@ public class EventController {
     }
 
     @PostMapping("study/{path}/new-event")
-    private String createEvent(@CurrentAccount Account account, @Valid EventForm eventForm, BindingResult bindingResult,Model model, @PathVariable String path) {
+    private String createEvent(@CurrentAccount Account account, @Valid EventForm eventForm, BindingResult bindingResult, Model model, @PathVariable String path) {
 
-        Study study = studyService.getStudyWithManagers(account, path);
+        Study study = studyService.getStudyWithManagersByManagers(account, path);
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(account);
             model.addAttribute(study);
             return EVENT_FORM;
         }
-            Event event = eventService.createEvent(account, study, eventForm);
+        Event event = eventService.createEvent(account, study, eventForm);
         return "redirect:/study/" + study.getEncodePath(path) + "/event/" + event.getId();
+    }
+
+
+    @GetMapping("study/{path}/event/{eventId}")
+    private String eventView(@CurrentAccount Account account, Model model, @PathVariable String path, @PathVariable("eventId") Event event) {
+
+        Study study = studyService.getStudyWithManagers(path);
+        model.addAttribute(account);
+        model.addAttribute(study);
+        model.addAttribute(event);
+        return "event/view";
     }
 }

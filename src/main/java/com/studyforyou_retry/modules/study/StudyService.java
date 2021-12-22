@@ -1,7 +1,6 @@
 package com.studyforyou_retry.modules.study;
 
 import com.studyforyou_retry.modules.account.Account;
-import com.studyforyou_retry.modules.account.AccountRepository;
 import com.studyforyou_retry.modules.account.UserAccount;
 import com.studyforyou_retry.modules.tags.Tag;
 import com.studyforyou_retry.modules.zones.Zone;
@@ -29,9 +28,9 @@ public class StudyService {
     }
 
 
-    public Study getStudyManagers(Account account, String path) {
+    public Study getStudyAllByManagers(Account account, String path) {
 
-        Study study = this.getStudy(path);
+        Study study = this.getStudyAll(path);
         isNotManager(account, study);
         return study;
     }
@@ -53,7 +52,7 @@ public class StudyService {
     }
 
     @Transactional(readOnly = true)
-    public Study getStudy(String path) {
+    public Study getStudyAll(String path) {
         Study study = studyRepository.findStudyWithAllByPath(path);
         isExistStudy(study);
         return study;
@@ -72,10 +71,10 @@ public class StudyService {
     }
 
     @Transactional(readOnly = true)
-    public Study getStudyWithManagersAndTags(Account account, String path) {
+    public Study getStudyWithManagersAndTagsByManagers(Account account, String path) {
 
         Study study = studyRepository.findStudyWithManagerAndTagsByPath(path);
-        isNotManager(account, study);
+        StudyAndManagerCheck(account, study);
         return study;
     }
 
@@ -88,18 +87,31 @@ public class StudyService {
     }
 
     @Transactional(readOnly = true)
-    public Study getStudyWithManagersAndZones(Account account, String path) {
+    public Study getStudyWithManagersAndZonesByManagers(Account account, String path) {
         Study study = studyRepository.findStudyWithManagerAndZonesByPath(path);
+        StudyAndManagerCheck(account, study);
+        return study;
+    }
+
+    private void StudyAndManagerCheck(Account account, Study study) {
+        isExistStudy(study);
         isNotManager(account, study);
+    }
+
+    @Transactional(readOnly = true)
+    public Study getStudyWithManagersByManagers(Account account, String path) {
+        Study study = studyRepository.findStudyWithManagerByPath(path);
+        StudyAndManagerCheck(account, study);
         return study;
     }
 
     @Transactional(readOnly = true)
-    public Study getStudyWithManagers(Account account, String path) {
+    public Study getStudyWithManagers(String path) {
         Study study = studyRepository.findStudyWithManagerByPath(path);
-        isNotManager(account, study);
+        isExistStudy(study);
         return study;
     }
+
 
     public void addZones(Study study, Zone zone) {
         study.addZones(zone);

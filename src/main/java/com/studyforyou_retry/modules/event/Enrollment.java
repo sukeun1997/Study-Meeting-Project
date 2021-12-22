@@ -4,6 +4,7 @@ import com.studyforyou_retry.modules.account.Account;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
@@ -20,6 +21,11 @@ public class Enrollment {
     @ManyToOne
     private Event event;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private Account account;
+
+    private boolean accepted;
+    private boolean attended;
+    private LocalDateTime enrolledAt;
+
 }

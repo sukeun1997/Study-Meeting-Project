@@ -1,16 +1,14 @@
 package com.studyforyou_retry.modules.event;
 
 import com.studyforyou_retry.modules.account.Account;
+import com.studyforyou_retry.modules.account.UserAccount;
 import com.studyforyou_retry.modules.study.Study;
 import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @AllArgsConstructor
@@ -61,5 +59,47 @@ public class Event {
     public void createEvent(Account account, Study study) {
         this.createdBy = account;
         this.study = study;
+    }
+
+    private int remainOfEnrollments() {
+        return limitOfEnrollments - enrollments.size();
+    }
+
+    private boolean canEnrollTime() {
+        return LocalDateTime.now().isBefore(endEnrollmentDateTime)
+                && startDateTime.isBefore(LocalDateTime.now())
+                && endDateTime.isAfter(LocalDateTime.now());
+    }
+
+
+    public boolean isEnrollableFor(UserAccount userAccount) {
+        return !isEnrollment(userAccount) && canEnrollTime();
+    }
+
+    public boolean isDisenrollableFor(UserAccount userAccount) {
+        return isEnrollment(userAccount) && startDateTime.isBefore(LocalDateTime.now())
+                && endDateTime.isAfter(LocalDateTime.now());
+    }
+
+    public boolean isAttended(UserAccount userAccount) {
+
+        Optional<Enrollment> optional = enrollments.stream().filter(enrollment -> enrollment.getAccount().equals(userAccount.getAccount())).findAny();
+
+        if (optional.isPresent()) {
+            return optional.get().isAttended();
+        }
+        return false;
+    }
+
+    public boolean isAcceptable(Enrollment enrollment) {
+        return !enrollment.isAccepted() && canEnrollTime() && remainOfEnrollments() > 0;
+    }
+
+    public boolean isRejectable(Enrollment enrollment) {
+        return enrollment.isAccepted() && canEnrollTime();
+    }
+
+    private boolean isEnrollment(UserAccount userAccount) {
+        return enrollments.stream().map(Enrollment::getAccount).anyMatch(account -> account == userAccount.getAccount());
     }
 }
