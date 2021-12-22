@@ -170,7 +170,7 @@ public class SettingController {
     @ResponseBody
     private ResponseEntity addTags(@CurrentAccount Account account, @RequestBody TagForm tagForm) {
 
-        Tag tag = tagService.getTag(tagForm.getTagTitle());
+        Tag tag = tagService.getNewTag(tagForm.getTagTitle());
         accountService.addTags(account, tag);
 
         return ResponseEntity.ok().build();

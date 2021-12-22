@@ -13,6 +13,7 @@ public class StudyForm {
     private String path;
 
     @Length(max = 50 , message = "50자 이내로 입력해주세요")
+    @NotBlank(message = "이름을 입력해주세요")
     private String title;
 
     @Length(max = 100 , message = "100자 이내로 입력해주세요")

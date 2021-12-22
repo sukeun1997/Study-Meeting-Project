@@ -136,7 +136,7 @@ public class StudySettingController {
     private ResponseEntity addTags(@CurrentAccount Account account, @RequestBody TagForm tagForm, @PathVariable String path) {
 
         Study study = studyService.getStudyWithManagersAndTags(account, path);
-        Tag tag = tagService.getTag(tagForm.getTagTitle());
+        Tag tag = tagService.getNewTag(tagForm.getTagTitle());
 
         studyService.addTag(study, tag);
 
@@ -148,7 +148,7 @@ public class StudySettingController {
     private ResponseEntity removeTags(@CurrentAccount Account account, @RequestBody TagForm tagForm, @PathVariable String path) {
 
         Study study = studyService.getStudyWithManagersAndTags(account, path);
-        Tag tag = tagService.getTag(tagForm.getTagTitle());
+        Tag tag = tagRepository.findByTitle(tagForm.getTagTitle());
 
         if (tag == null) {
             return ResponseEntity.badRequest().build();
@@ -233,10 +233,16 @@ public class StudySettingController {
     }
 
     @PostMapping("study/path")
-    private String updatePath(@CurrentAccount Account account, @PathVariable String path, String newPath, RedirectAttributes redirectAttributes) {
+    private String updatePath(@CurrentAccount Account account, @PathVariable String path, @Valid StudyNewPathForm studyNewPathForm, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
         Study study = studyService.getStudyWithManagers(account, path);
 
+        String newPath = studyNewPathForm.getNewPath();
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("studyPathError", bindingResult.getFieldError("newPath").getDefaultMessage());
+            return "redirect:/study/" + study.getEncodePath(path) + "/settings/study";
+        }
         if (isExistsByPath(newPath)) {
             redirectAttributes.addFlashAttribute("studyPathError", "해당 경로는 사용할 수 없습니다.");
             return "redirect:/study/" + study.getEncodePath(path) + "/settings/study";
@@ -248,10 +254,16 @@ public class StudySettingController {
     }
 
     @PostMapping("study/title")
-    private String updateTitle(@CurrentAccount Account account, @PathVariable String path, String newTitle, RedirectAttributes redirectAttributes) {
+    private String updateTitle(@CurrentAccount Account account, @PathVariable String path, @Valid StudyNewTitleForm studyNewTitleForm, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
         Study study = studyService.getStudyWithManagers(account, path);
 
+        String newTitle = studyNewTitleForm.getNewTitle();
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("studyTitleError", bindingResult.getFieldError("newTitle").getDefaultMessage());
+            return "redirect:/study/" + study.getEncodePath(path) + "/settings/study";
+        }
         if (isExistsByTitle(newTitle)) {
             redirectAttributes.addFlashAttribute("studyTitleError", "해당 이름은 사용할 수 없습니다.");
             return "redirect:/study/" + study.getEncodePath(path) + "/settings/study";
@@ -263,9 +275,15 @@ public class StudySettingController {
     }
 
     @PostMapping("study/remove")
-    private String removeStudy(@CurrentAccount Account account, @PathVariable String path) {
+    private String removeStudy(@CurrentAccount Account account, @PathVariable String path, RedirectAttributes redirectAttributes) {
 
         Study study = studyService.getStudyWithManagers(account, path);
+
+        if (!study.isRemovable()) {
+            redirectAttributes.addFlashAttribute("message", "스터디를 삭제 할 수 없습니다.");
+            return "redirect:/study/" + study.getEncodePath(path) + "/settings/study";
+        }
+
         studyService.deleteStudy(study);
 
         return "redirect:/";

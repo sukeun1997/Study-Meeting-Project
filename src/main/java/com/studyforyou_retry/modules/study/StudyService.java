@@ -139,7 +139,7 @@ public class StudyService {
     }
 
     public boolean canRecruit(Study study) {
-        return study.getRecruitDateTime().isBefore(LocalDateTime.now().minusHours(1));
+        return (study.getRecruitDateTime() == null || study.getRecruitDateTime().isBefore(LocalDateTime.now().minusHours(1))) && study.isPublished();
     }
 
     public void joinStudy(Study study, Account account) {

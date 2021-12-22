@@ -12,7 +12,7 @@ public class TagService {
 
     private final TagRepository tagRepository;
 
-    public Tag getTag(String tagTitle) {
+    public Tag getNewTag(String tagTitle) {
         Tag tag = tagRepository.findByTitle(tagTitle);
 
         if (tag == null) {
