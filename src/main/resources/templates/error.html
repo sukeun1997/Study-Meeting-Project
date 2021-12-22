@@ -7,7 +7,7 @@
     <div class="container">
         <h1>스터디올래</h1>
         <p class="lead text-muted">
-            잘못된 요청입니다.
+            <span th:if="${!#strings.isEmpty(error)}" th:text="${error}">잘못된 접근입니다.</span>
         </p>
         <p>
             <a th:href="@{/}" class="btn btn-primary my-2">첫 페이지로 돌아가기</a>

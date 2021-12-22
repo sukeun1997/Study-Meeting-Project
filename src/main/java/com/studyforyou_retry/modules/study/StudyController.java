@@ -2,6 +2,7 @@ package com.studyforyou_retry.modules.study;
 
 import com.studyforyou_retry.modules.account.Account;
 import com.studyforyou_retry.modules.account.CurrentAccount;
+import com.studyforyou_retry.modules.event.EventForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -101,6 +102,5 @@ public class StudyController {
 
         return STUDY_MEMBERS;
     }
-
 
 }
