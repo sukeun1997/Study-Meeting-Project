@@ -161,4 +161,11 @@ public class StudyService {
     public void leaveStudy(Study study, Account account) {
         study.leaveStudy(account);
     }
+
+    @Transactional(readOnly = true)
+    public Study getOnlyStudyByPath(String path) {
+        Study study = studyRepository.findByPath(path);
+        isExistStudy(study);
+        return study;
+    }
 }

@@ -11,11 +11,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("study/{path}/")
 public class EventController {
 
     public static final String EVENT_FORM = "event/form";
@@ -23,7 +26,7 @@ public class EventController {
     private final EventService eventService;
     private final StudyService studyService;
 
-    @GetMapping("study/{path}/new-event")
+    @GetMapping("new-event")
     private String createEvent(@CurrentAccount Account account, @PathVariable String path, Model model) {
 
         Study study = studyService.getStudyWithManagersByManagers(account, path);
@@ -34,7 +37,7 @@ public class EventController {
         return EVENT_FORM;
     }
 
-    @PostMapping("study/{path}/new-event")
+    @PostMapping("new-event")
     private String createEvent(@CurrentAccount Account account, @Valid EventForm eventForm, BindingResult bindingResult, Model model, @PathVariable String path) {
 
         Study study = studyService.getStudyWithManagersByManagers(account, path);
@@ -45,11 +48,11 @@ public class EventController {
             return EVENT_FORM;
         }
         Event event = eventService.createEvent(account, study, eventForm);
-        return "redirect:/study/" + study.getEncodePath(path) + "/event/" + event.getId();
+        return getEventView(event.getId(), study.getEncodePath(path));
     }
 
 
-    @GetMapping("study/{path}/event/{eventId}")
+    @GetMapping("events/{eventId}")
     private String eventView(@CurrentAccount Account account, Model model, @PathVariable String path, @PathVariable("eventId") Event event) {
 
         Study study = studyService.getStudyWithManagers(path);
@@ -58,4 +61,27 @@ public class EventController {
         model.addAttribute(event);
         return "event/view";
     }
+
+    @PostMapping("events/{eventId}/enroll")
+    private String enrollEvent(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path) {
+
+        Study study = studyService.getOnlyStudyByPath(path);
+        eventService.enrollEvent(account,event);
+
+        return getEventView(event.getId(), study.getEncodePath(path));
+    }
+    @PostMapping("events/{eventId}/disenroll")
+    private String disenrollEvent(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path) {
+
+        Study study = studyService.getOnlyStudyByPath(path);
+        eventService.disenrollEvent(account,event);
+
+        return getEventView(event.getId(), study.getEncodePath(path));
+    }
+
+
+    private String getEventView(Long id, String path) {
+        return "redirect:/study/"+path+"/events/"+id;
+    }
+
 }

@@ -18,14 +18,14 @@ public class Enrollment {
     @Id @GeneratedValue
     private Long id;
 
-    @ManyToOne
-    private Event event;
-
-    @OneToOne
-    private Account account;
 
     private boolean accepted;
     private boolean attended;
     private LocalDateTime enrolledAt;
 
+    @ManyToOne
+    private Event event;
+
+    @OneToOne
+    private Account account;
 }

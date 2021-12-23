@@ -47,10 +47,10 @@ public class Event {
     @Column(nullable = false)
     private LocalDateTime endEnrollmentDateTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private Account createdBy;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     private Study study;
 
     @OneToMany(mappedBy = "event")
@@ -94,12 +94,27 @@ public class Event {
     public boolean isAcceptable(Enrollment enrollment) {
         return !enrollment.isAccepted() && canEnrollTime() && remainOfEnrollments() > 0;
     }
+    public boolean isAcceptableFCFS(Enrollment enrollment) {
+        return !enrollment.isAccepted() && canEnrollTime() && remainOfEnrollments() > 0 && isFCFS();
+    }
+
+    private boolean isFCFS() {
+        return eventType.equals(EventType.FCFS);
+    }
 
     public boolean isRejectable(Enrollment enrollment) {
         return enrollment.isAccepted() && canEnrollTime();
     }
 
     private boolean isEnrollment(UserAccount userAccount) {
-        return enrollments.stream().map(Enrollment::getAccount).anyMatch(account -> account == userAccount.getAccount());
+        return enrollments.stream().map(Enrollment::getAccount).anyMatch(account -> account.equals(userAccount.getAccount()));
+    }
+
+    public void addEnrollment(Enrollment enrollment) {
+        enrollments.add(enrollment);
+    }
+
+    public void removeEnrollment(Enrollment enrollment) {
+        enrollments.remove(enrollment);
     }
 }
