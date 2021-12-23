@@ -148,6 +148,11 @@
                 <span th:text="${event.limitOfEnrollments}"></span>명
             </dd>
 
+            <dt class="font-weight-light">남은 인원</dt>
+            <dd>
+                <span th:text="${event.remainOfEnrollments()}"></span>명
+            </dd>
+
             <dt class="font-weight-light">참가 신청 마감 일시</dt>
             <dd>
                 <span class="date" th:text="${event.endEnrollmentDateTime}"></span>

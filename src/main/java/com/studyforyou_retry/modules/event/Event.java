@@ -65,8 +65,8 @@ public class Event {
         this.createdDateTime = LocalDateTime.now();
     }
 
-    private int remainOfEnrollments() {
-        return limitOfEnrollments - enrollments.size();
+    public int remainOfEnrollments() {
+        return (int) (limitOfEnrollments - enrollments.stream().filter(Enrollment::isAccepted).count());
     }
 
     private boolean canEnrollTime() {
