@@ -7,8 +7,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -29,12 +27,7 @@ public class EventService {
     public void enrollEvent(Account account, Event event) {
 
         if (!isExistsByEventAndAccount(account, event)) {
-            Enrollment enrollment = new Enrollment();
-
-            enrollment.setEnrolledAt(LocalDateTime.now());
-            enrollment.setAccount(account);
-            enrollment.setAccepted(event.isAcceptableFCFS(enrollment));
-            enrollment.setEvent(event);
+            Enrollment enrollment = Enrollment.createEnrollment(account, event);
             event.addEnrollment(enrollment);
             enrollmentRepository.save(enrollment);
         }
@@ -47,11 +40,30 @@ public class EventService {
         if (enrollment != null) {
             event.removeEnrollment(enrollment);
             enrollmentRepository.delete(enrollment);
-            // TODO 선착순일시 다음 선착순 자동 확정 
+            // TODO 선착순일시 다음 선착순 자동 확정
         }
     }
 
     private boolean isExistsByEventAndAccount(Account account, Event event) {
         return enrollmentRepository.existsByEventAndAccount(event, account);
+    }
+
+    public void rejectEnroll(Event event, Enrollment enrollment) {
+
+        if (event.isRejectable(enrollment)) {
+            enrollment.rejectEnroll();
+            return;
+        }
+
+        throw new RuntimeException("rejectEnroll 거절 오류");
+
+    }
+
+    public void acceptEnroll(Event event, Enrollment enrollment) {
+        if (event.isAcceptable(enrollment)) {
+            enrollment.acceptEnroll();
+            return;
+        }
+        throw new RuntimeException("rejectEnroll 수락 오류");
     }
 }

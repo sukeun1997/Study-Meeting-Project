@@ -19,4 +19,13 @@ public class ExceptionController {
         model.addAttribute("error", "잘못된 접근 또는 오류 입니다.");
         return "error";
     }
+
+    @ExceptionHandler({ RuntimeException.class })
+    public String handleRuntimeException(final RuntimeException ex, Model model) {
+        log.info(ex.getClass().getName());
+        log.error("error", ex);
+
+        model.addAttribute("error", "잘못된 접근 또는 오류 입니다.");
+        return "error";
+    }
 }

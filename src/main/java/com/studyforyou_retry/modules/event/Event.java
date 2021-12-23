@@ -47,18 +47,22 @@ public class Event {
     @Column(nullable = false)
     private LocalDateTime endEnrollmentDateTime;
 
+    @Column(nullable = false)
+    private LocalDateTime createdDateTime;
+
     @OneToOne
     private Account createdBy;
 
     @OneToOne(fetch = FetchType.LAZY)
     private Study study;
 
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
     private Set<Enrollment> enrollments = new HashSet<>();
 
     public void createEvent(Account account, Study study) {
         this.createdBy = account;
         this.study = study;
+        this.createdDateTime = LocalDateTime.now();
     }
 
     private int remainOfEnrollments() {
@@ -94,6 +98,7 @@ public class Event {
     public boolean isAcceptable(Enrollment enrollment) {
         return !enrollment.isAccepted() && canEnrollTime() && remainOfEnrollments() > 0;
     }
+
     public boolean isAcceptableFCFS(Enrollment enrollment) {
         return !enrollment.isAccepted() && canEnrollTime() && remainOfEnrollments() > 0 && isFCFS();
     }

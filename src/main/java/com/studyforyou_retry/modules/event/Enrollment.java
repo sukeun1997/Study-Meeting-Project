@@ -23,9 +23,26 @@ public class Enrollment {
     private boolean attended;
     private LocalDateTime enrolledAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Event event;
 
     @OneToOne
     private Account account;
+
+    public static Enrollment createEnrollment(Account account, Event event) {
+        Enrollment enrollment = new Enrollment();
+        enrollment.account = account;
+        enrollment.event = event;
+        enrollment.enrolledAt = LocalDateTime.now();
+        enrollment.accepted = event.isAcceptableFCFS(enrollment);
+        return enrollment;
+    }
+
+    public void rejectEnroll() {
+        this.accepted = false;
+    }
+
+    public void acceptEnroll() {
+        this.accepted = true;
+    }
 }

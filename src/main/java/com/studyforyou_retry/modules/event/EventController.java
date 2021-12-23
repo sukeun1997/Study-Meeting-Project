@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
@@ -22,7 +21,8 @@ import javax.validation.Valid;
 public class EventController {
 
     public static final String EVENT_FORM = "event/form";
-    private final EventRepository eventRepository;
+    private static final String EVENTS_EVENT_ID = "events/{eventId}/";
+    private static final String ENROLLMENTS_ENROLL_ID = "enrollments/{enrollId}/";
     private final EventService eventService;
     private final StudyService studyService;
 
@@ -48,7 +48,7 @@ public class EventController {
             return EVENT_FORM;
         }
         Event event = eventService.createEvent(account, study, eventForm);
-        return getEventView(event.getId(), study.getEncodePath(path));
+        return redirectEventView(event.getId(), study.getEncodePath(path));
     }
 
 
@@ -56,31 +56,53 @@ public class EventController {
     private String eventView(@CurrentAccount Account account, Model model, @PathVariable String path, @PathVariable("eventId") Event event) {
 
         Study study = studyService.getStudyWithManagers(path);
+        return getEventView(account, event, model, study);
+    }
+
+    @PostMapping(EVENTS_EVENT_ID + "enroll")
+    private String enrollEvent(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path) {
+
+        Study study = studyService.getOnlyStudyByPath(path);
+        eventService.enrollEvent(account,event);
+
+        return redirectEventView(event.getId(), study.getEncodePath(path));
+    }
+    @PostMapping(EVENTS_EVENT_ID + "disenroll")
+    private String disenrollEvent(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path) {
+
+        Study study = studyService.getOnlyStudyByPath(path);
+        eventService.disenrollEvent(account,event);
+
+        return redirectEventView(event.getId(), study.getEncodePath(path));
+    }
+
+    @GetMapping(EVENTS_EVENT_ID + ENROLLMENTS_ENROLL_ID + "reject")
+    private String rejectEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path, @PathVariable("enrollId") Enrollment enrollment, Model model
+    ) {
+        Study study = studyService.getStudyWithManagersByManagers(account,path);
+        eventService.rejectEnroll(event,enrollment);
+
+        return getEventView(account, event, model, study);
+    }
+
+
+    @GetMapping(EVENTS_EVENT_ID + ENROLLMENTS_ENROLL_ID + "accept")
+    private String acceptEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path, @PathVariable("enrollId") Enrollment enrollment, Model model
+    ) {
+        Study study = studyService.getStudyWithManagersByManagers(account,path);
+        eventService.acceptEnroll(event,enrollment);
+
+        return getEventView(account, event, model, study);
+    }
+
+    private String getEventView(@CurrentAccount Account account, @PathVariable("eventId") Event event, Model model, Study study) {
         model.addAttribute(account);
         model.addAttribute(study);
         model.addAttribute(event);
         return "event/view";
     }
 
-    @PostMapping("events/{eventId}/enroll")
-    private String enrollEvent(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path) {
-
-        Study study = studyService.getOnlyStudyByPath(path);
-        eventService.enrollEvent(account,event);
-
-        return getEventView(event.getId(), study.getEncodePath(path));
-    }
-    @PostMapping("events/{eventId}/disenroll")
-    private String disenrollEvent(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path) {
-
-        Study study = studyService.getOnlyStudyByPath(path);
-        eventService.disenrollEvent(account,event);
-
-        return getEventView(event.getId(), study.getEncodePath(path));
-    }
-
-
-    private String getEventView(Long id, String path) {
+    private String redirectEventView(Long id, String path) {
         return "redirect:/study/"+path+"/events/"+id;
     }
 
