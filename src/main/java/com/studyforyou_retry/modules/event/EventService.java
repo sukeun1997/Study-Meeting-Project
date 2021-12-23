@@ -55,7 +55,7 @@ public class EventService {
             return;
         }
 
-        throw new RuntimeException("rejectEnroll 거절 오류");
+        throw new RuntimeException("rejectEnroll 오류");
 
     }
 
@@ -64,6 +64,23 @@ public class EventService {
             enrollment.acceptEnroll();
             return;
         }
-        throw new RuntimeException("rejectEnroll 수락 오류");
+        throw new RuntimeException("acceptEnroll 오류");
+    }
+
+    public void checkinEnroll(Enrollment enrollment) {
+
+        if (!enrollment.isAttend()) {
+            enrollment.checkin();
+            return;
+        }
+        throw new RuntimeException("checkinEnroll 오류");
+    }
+
+    public void cancelCheckinEnroll(Enrollment enrollment) {
+        if (enrollment.isAttend()) {
+            enrollment.cancelCheckin();
+            return;
+        }
+        throw new RuntimeException("cancel-checkinEnroll 오류");
     }
 }

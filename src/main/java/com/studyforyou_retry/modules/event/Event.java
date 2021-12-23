@@ -77,12 +77,12 @@ public class Event {
 
 
     public boolean isEnrollableFor(UserAccount userAccount) {
-        return !isEnrollment(userAccount) && canEnrollTime();
+        return !isEnrollment(userAccount) && canEnrollTime() && !isAttended(userAccount);
     }
 
     public boolean isDisenrollableFor(UserAccount userAccount) {
         return isEnrollment(userAccount) && startDateTime.isBefore(LocalDateTime.now())
-                && endDateTime.isAfter(LocalDateTime.now());
+                && endDateTime.isAfter(LocalDateTime.now()) && !isAttended(userAccount);
     }
 
     public boolean isAttended(UserAccount userAccount) {
@@ -96,11 +96,11 @@ public class Event {
     }
 
     public boolean isAcceptable(Enrollment enrollment) {
-        return !enrollment.isAccepted() && canEnrollTime() && remainOfEnrollments() > 0;
+        return !enrollment.isAccepted() && canEnrollTime() && remainOfEnrollments() > 0 && !enrollment.isAttended();
     }
 
     public boolean isAcceptableFCFS(Enrollment enrollment) {
-        return !enrollment.isAccepted() && canEnrollTime() && remainOfEnrollments() > 0 && isFCFS();
+        return !enrollment.isAccepted() && canEnrollTime() && remainOfEnrollments() > 0 && isFCFS() && !enrollment.isAttended();
     }
 
     private boolean isFCFS() {
@@ -108,7 +108,7 @@ public class Event {
     }
 
     public boolean isRejectable(Enrollment enrollment) {
-        return enrollment.isAccepted() && canEnrollTime();
+        return enrollment.isAccepted() && canEnrollTime() && !enrollment.isAttended();
     }
 
     private boolean isEnrollment(UserAccount userAccount) {
@@ -122,4 +122,5 @@ public class Event {
     public void removeEnrollment(Enrollment enrollment) {
         enrollments.remove(enrollment);
     }
+
 }

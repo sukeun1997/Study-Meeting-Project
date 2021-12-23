@@ -45,4 +45,16 @@ public class Enrollment {
     public void acceptEnroll() {
         this.accepted = true;
     }
+
+    public boolean isAttend() {
+        return accepted && attended;
+    }
+
+    public void checkin() {
+        attended = true;
+    }
+
+    public void cancelCheckin() {
+        attended = false;
+    }
 }

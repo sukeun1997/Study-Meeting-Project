@@ -116,7 +116,11 @@
                             <span class="date-time" th:text="${enroll.enrolledAt}"></span>
                         </td>
                         <td>
-                            <span th:if="${enroll.accepted}">확정</span>
+                            <span th:if="${enroll.accepted}">
+                                <span th:if="${!enroll.attended}">확정</span>
+                                <span th:if="${enroll.attended}">참가중</span>
+                            </span>
+
                             <span th:if="${!enroll.accepted}">대기중</span>
                         </td>
                         <td th:if="${study.isManager(#authentication.principal)}">
