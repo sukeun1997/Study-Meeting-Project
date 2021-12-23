@@ -83,4 +83,9 @@ public class EventService {
         }
         throw new RuntimeException("cancel-checkinEnroll 오류");
     }
+
+    public void updateEvent(EventForm eventForm, Event event) {
+        eventForm.setEventType(event.getEventType());
+        modelMapper.map(eventForm, event);
+    }
 }
