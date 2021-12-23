@@ -13,6 +13,9 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,7 +29,7 @@ public class EventController {
     private final StudyService studyService;
     private final ModelMapper modelMapper;
     private final EventFormValidator eventFormValidator;
-
+    private final EventRepository eventRepository;
 
     @InitBinder("eventForm")
     private void eventFormValid(WebDataBinder webDataBinder) {
@@ -64,6 +67,30 @@ public class EventController {
 
         Study study = studyService.getStudyWithManagers(path);
         return getEventView(account, event, model, study);
+    }
+
+    @GetMapping("events")
+    private String eventListView(@CurrentAccount Account account ,@PathVariable String path, Model model) {
+
+
+        Study study = studyService.getStudyAll(path);
+        List<Event> newEvents = new ArrayList<>();
+        List<Event> oldEvents = new ArrayList<>();
+
+        eventRepository.findEventByStudyOrderByCreatedDateTime(study).stream().forEach(event -> {
+            if (event.getEndDateTime().isBefore(LocalDateTime.now())) {
+                oldEvents.add(event);
+            } else {
+                newEvents.add(event);
+            }
+        });
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+        model.addAttribute("newEvents", newEvents);
+        model.addAttribute("oldEvents", oldEvents);
+
+        return "study/events";
     }
 
     @PostMapping(EVENTS_EVENT_ID + "enroll")
