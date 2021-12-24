@@ -57,7 +57,7 @@ public class Event {
 
     @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
     @OrderBy(value = "enrolledAt")
-    private Set<Enrollment> enrollments = new HashSet<>();
+    private List<Enrollment> enrollments = new ArrayList<>();
 
     public void createEvent(Account account, Study study) {
         this.createdBy = account;
@@ -74,9 +74,7 @@ public class Event {
     }
 
     private boolean canEnrollTime() {
-        return LocalDateTime.now().isBefore(endEnrollmentDateTime)
-                && startDateTime.isBefore(LocalDateTime.now())
-                && endDateTime.isAfter(LocalDateTime.now());
+        return LocalDateTime.now().isBefore(endEnrollmentDateTime);
     }
 
 
@@ -115,7 +113,7 @@ public class Event {
         return enrollment.isAccepted() && canEnrollTime() && !enrollment.isAttended();
     }
 
-    private boolean isEnrollment(UserAccount userAccount) {
+    public boolean isEnrollment(UserAccount userAccount) {
         return enrollments.stream().map(Enrollment::getAccount).anyMatch(account -> account.equals(userAccount.getAccount()));
     }
 
@@ -125,17 +123,18 @@ public class Event {
 
     public void removeEnrollment(Enrollment enrollment) {
         enrollments.remove(enrollment);
+        enrollment.setEvent(null);
     }
 
     public void acceptNextWaitingFCFS() {
-        if (canAcceptWatingFCFS()) {
+        if (canAcceptWaitingFCFS()) {
             enrollments.stream().filter(enrollment -> !enrollment.isAccepted()).findFirst().ifPresent(enrollment -> enrollment.acceptEnroll());
         }
     }
 
     public void acceptWaitingList() {
-        if (canAcceptWatingFCFS()) {
-            long waitingCount = enrollments.stream().filter(enrollment -> !enrollment.isAccepted()).count();
+        if (canAcceptWaitingFCFS()) {
+            long waitingCount = getWaitingCount();
             int count = Integer.min((int) waitingCount, remainOfEnrollments());
 
             enrollments.stream().filter(enrollment -> !enrollment.isAccepted()).limit(count).forEach(
@@ -145,7 +144,11 @@ public class Event {
         }
     }
 
-    private boolean canAcceptWatingFCFS() {
+    public long getWaitingCount() {
+        return enrollments.stream().filter(enrollment -> !enrollment.isAccepted()).count();
+    }
+
+    private boolean canAcceptWaitingFCFS() {
         return isFCFS() && remainOfEnrollments() > 0;
     }
 }

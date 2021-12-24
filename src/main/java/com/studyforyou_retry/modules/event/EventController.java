@@ -61,19 +61,8 @@ public class EventController {
         return redirectEventView(event.getId(), study.getEncodePath(path));
     }
 
-
-    @GetMapping("events/{eventId}")
-    private String eventView(@CurrentAccount Account account, Model model, @PathVariable String path, @PathVariable("eventId") Event event) {
-
-        Study study = studyService.getStudyWithManagers(path);
-        model.addAttribute(account);
-        model.addAttribute(study);
-        model.addAttribute(event);
-        return "event/view";
-    }
-
     @GetMapping("events")
-    private String eventListView(@CurrentAccount Account account ,@PathVariable String path, Model model) {
+    private String eventListView(@CurrentAccount Account account, @PathVariable String path, Model model) {
 
 
         Study study = studyService.getStudyAll(path);
@@ -94,6 +83,17 @@ public class EventController {
         model.addAttribute("oldEvents", oldEvents);
 
         return "study/events";
+    }
+
+
+    @GetMapping("events/{eventId}")
+    private String eventView(@CurrentAccount Account account, Model model, @PathVariable String path, @PathVariable("eventId") Event event) {
+
+        Study study = studyService.getStudyWithManagers(path);
+        model.addAttribute(account);
+        model.addAttribute(study);
+        model.addAttribute(event);
+        return "event/view";
     }
 
     @PostMapping(EVENTS_EVENT_ID + "enroll")
@@ -141,6 +141,7 @@ public class EventController {
 
         return redirectEventView(event.getId(), study.getPath());
     }
+
     @GetMapping(EVENTS_EVENT_ID + ENROLLMENTS_ENROLL_ID + "cancel-checkin")
     private String cancelCheckinEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path, @PathVariable("enrollId") Enrollment enrollment) {
 

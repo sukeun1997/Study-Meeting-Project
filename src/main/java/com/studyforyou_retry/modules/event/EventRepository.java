@@ -15,4 +15,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findEventByStudyOrderByCreatedDateTime(Study study);
 
 
+    boolean existsByTitle(String test);
 }
