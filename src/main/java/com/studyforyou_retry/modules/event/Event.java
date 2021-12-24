@@ -6,7 +6,6 @@ import com.studyforyou_retry.modules.study.Study;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -57,6 +56,7 @@ public class Event {
     private Study study;
 
     @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
+    @OrderBy(value = "enrolledAt")
     private Set<Enrollment> enrollments = new HashSet<>();
 
     public void createEvent(Account account, Study study) {
@@ -66,7 +66,11 @@ public class Event {
     }
 
     public int remainOfEnrollments() {
-        return (int) (limitOfEnrollments - enrollments.stream().filter(Enrollment::isAccepted).count());
+        return (limitOfEnrollments - acceptedCount());
+    }
+
+    public int acceptedCount() {
+        return (int) enrollments.stream().filter(Enrollment::isAccepted).count();
     }
 
     private boolean canEnrollTime() {
@@ -123,4 +127,25 @@ public class Event {
         enrollments.remove(enrollment);
     }
 
+    public void acceptNextWaitingFCFS() {
+        if (canAcceptWatingFCFS()) {
+            enrollments.stream().filter(enrollment -> !enrollment.isAccepted()).findFirst().ifPresent(enrollment -> enrollment.acceptEnroll());
+        }
+    }
+
+    public void acceptWaitingList() {
+        if (canAcceptWatingFCFS()) {
+            long waitingCount = enrollments.stream().filter(enrollment -> !enrollment.isAccepted()).count();
+            int count = Integer.min((int) waitingCount, remainOfEnrollments());
+
+            enrollments.stream().filter(enrollment -> !enrollment.isAccepted()).limit(count).forEach(
+                    enrollment -> enrollment.acceptEnroll()
+            );
+
+        }
+    }
+
+    private boolean canAcceptWatingFCFS() {
+        return isFCFS() && remainOfEnrollments() > 0;
+    }
 }

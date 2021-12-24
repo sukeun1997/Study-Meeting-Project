@@ -66,7 +66,10 @@ public class EventController {
     private String eventView(@CurrentAccount Account account, Model model, @PathVariable String path, @PathVariable("eventId") Event event) {
 
         Study study = studyService.getStudyWithManagers(path);
-        return getEventView(account, event, model, study);
+        model.addAttribute(account);
+        model.addAttribute(study);
+        model.addAttribute(event);
+        return "event/view";
     }
 
     @GetMapping("events")
@@ -112,39 +115,39 @@ public class EventController {
     }
 
     @GetMapping(EVENTS_EVENT_ID + ENROLLMENTS_ENROLL_ID + "reject")
-    private String rejectEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path, @PathVariable("enrollId") Enrollment enrollment, Model model
+    private String rejectEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path, @PathVariable("enrollId") Enrollment enrollment
     ) {
         Study study = studyService.getStudyWithManagersByManagers(account, path);
         eventService.rejectEnroll(event, enrollment);
 
-        return getEventView(account, event, model, study);
+        return redirectEventView(event.getId(), study.getPath());
     }
 
 
     @GetMapping(EVENTS_EVENT_ID + ENROLLMENTS_ENROLL_ID + "accept")
-    private String acceptEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path, @PathVariable("enrollId") Enrollment enrollment, Model model
+    private String acceptEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path, @PathVariable("enrollId") Enrollment enrollment
     ) {
         Study study = studyService.getStudyWithManagersByManagers(account, path);
         eventService.acceptEnroll(event, enrollment);
 
-        return getEventView(account, event, model, study);
+        return redirectEventView(event.getId(), study.getPath());
     }
 
     @GetMapping(EVENTS_EVENT_ID + ENROLLMENTS_ENROLL_ID + "checkin")
-    private String checkinEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path, @PathVariable("enrollId") Enrollment enrollment, Model model) {
+    private String checkinEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path, @PathVariable("enrollId") Enrollment enrollment) {
 
         Study study = studyService.getStudyWithManagersByManagers(account, path);
         eventService.checkinEnroll(enrollment);
 
-        return getEventView(account, event, model, study);
+        return redirectEventView(event.getId(), study.getPath());
     }
     @GetMapping(EVENTS_EVENT_ID + ENROLLMENTS_ENROLL_ID + "cancel-checkin")
-    private String cancelCheckinEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path, @PathVariable("enrollId") Enrollment enrollment, Model model) {
+    private String cancelCheckinEnroll(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path, @PathVariable("enrollId") Enrollment enrollment) {
 
         Study study = studyService.getStudyWithManagersByManagers(account, path);
         eventService.cancelCheckinEnroll(enrollment);
 
-        return getEventView(account, event, model, study);
+        return redirectEventView(event.getId(), study.getPath());
     }
 
     @GetMapping(EVENTS_EVENT_ID + "edit")
@@ -168,13 +171,13 @@ public class EventController {
             return getUpdateErrorView(account, event, model, study);
         }
 
-        if (eventForm.getLimitOfEnrollments() < event.remainOfEnrollments()) {
+        if (eventForm.getLimitOfEnrollments() < event.acceptedCount()) {
             bindingResult.rejectValue("limitOfEnrollments", "wrong value", "현재 참석 모임 인원보다 적을 수 없습니다.");
             return getUpdateErrorView(account, event, model, study);
         }
 
         eventService.updateEvent(eventForm, event);
-        return getEventView(account,event,model,study);
+        return redirectEventView(event.getId(), study.getPath());
     }
 
     private String getUpdateErrorView(@CurrentAccount Account account, @PathVariable("eventId") Event event, Model model, Study study) {
@@ -182,13 +185,6 @@ public class EventController {
         model.addAttribute(study);
         model.addAttribute(event);
         return "event/updateform";
-    }
-
-    private String getEventView(@CurrentAccount Account account, @PathVariable("eventId") Event event, Model model, Study study) {
-        model.addAttribute(account);
-        model.addAttribute(study);
-        model.addAttribute(event);
-        return "event/view";
     }
 
     private String redirectEventView(Long id, String path) {

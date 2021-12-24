@@ -40,7 +40,7 @@ public class EventService {
         if (enrollment != null) {
             event.removeEnrollment(enrollment);
             enrollmentRepository.delete(enrollment);
-            // TODO 선착순일시 다음 선착순 자동 확정
+            event.acceptNextWaitingFCFS();
         }
     }
 
@@ -87,5 +87,6 @@ public class EventService {
     public void updateEvent(EventForm eventForm, Event event) {
         eventForm.setEventType(event.getEventType());
         modelMapper.map(eventForm, event);
+        event.acceptWaitingList();
     }
 }
