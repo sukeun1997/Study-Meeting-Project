@@ -23,10 +23,10 @@ public class Enrollment {
     private boolean attended;
     private LocalDateTime enrolledAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Event event;
 
-    @OneToOne
+    @ManyToOne
     private Account account;
 
     public static Enrollment createEnrollment(Account account, Event event) {

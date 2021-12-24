@@ -89,4 +89,8 @@ public class EventService {
         modelMapper.map(eventForm, event);
         event.acceptWaitingList();
     }
+
+    public void deleteEvent(Event event) {
+        eventRepository.delete(event);
+    }
 }

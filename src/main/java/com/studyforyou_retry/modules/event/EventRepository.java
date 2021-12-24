@@ -11,7 +11,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-    @EntityGraph(attributePaths = {"enrollments"},type = EntityGraph.EntityGraphType.LOAD)
+    @EntityGraph(attributePaths = {"enrollments"})
     List<Event> findEventByStudyOrderByCreatedDateTime(Study study);
 
 

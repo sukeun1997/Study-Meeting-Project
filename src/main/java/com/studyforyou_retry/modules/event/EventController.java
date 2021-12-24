@@ -180,6 +180,15 @@ public class EventController {
         return redirectEventView(event.getId(), study.getPath());
     }
 
+    @DeleteMapping("events/{eventId}")
+    private String deleteEvent(@CurrentAccount Account account, @PathVariable("eventId") Event event, @PathVariable String path) {
+
+        Study study = studyService.getStudyWithManagersByManagers(account, path);
+        eventService.deleteEvent(event);
+
+        return "redirect:/study/" + study.getEncodePath(path) + "/events";
+    }
+
     private String getUpdateErrorView(@CurrentAccount Account account, @PathVariable("eventId") Event event, Model model, Study study) {
         model.addAttribute(account);
         model.addAttribute(study);
