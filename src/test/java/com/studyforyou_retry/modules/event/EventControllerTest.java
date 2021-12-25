@@ -307,7 +307,7 @@ class EventControllerTest {
     @DisplayName("스터디 [선착순] 모임 참가 신청 취소 - 변동사항 X")
     void disEnrollEvent() throws Exception {
 
-        eventService.enrollEvent(account,event);
+        eventService.enrollEvent(account, event);
 
         assertTrue(event.getEnrollments().size() == 1);
         assertTrue(event.isEnrollment(new UserAccount(account)));
@@ -318,7 +318,7 @@ class EventControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl(STUDY_TEST_EVENTS + event.getId()));
 
-        assertTrue(!enrollmentRepository.existsByEventAndAccount(event,account));
+        assertTrue(!enrollmentRepository.existsByEventAndAccount(event, account));
     }
 
     @Test
@@ -326,11 +326,11 @@ class EventControllerTest {
     @DisplayName("스터디 [선착순] 모임 참가 신청 취소 - 대기중 -> 확정 ")
     void disEnrollEvent_() throws Exception {
 
-        eventService.enrollEvent(account,event);
+        eventService.enrollEvent(account, event);
 
         for (int i = 0; i < 4; i++) {
-            Account test1 = accountFactory.createNewAccount("test"+i);
-            eventService.enrollEvent(test1,event);
+            Account test1 = accountFactory.createNewAccount("test" + i);
+            eventService.enrollEvent(test1, event);
         }
         Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, account);
         assertTrue(event.acceptedCount() == 2);
@@ -342,8 +342,96 @@ class EventControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl(STUDY_TEST_EVENTS + event.getId()));
 
-        assertTrue(!enrollmentRepository.existsByEventAndAccount(event,account));
+        assertTrue(!enrollmentRepository.existsByEventAndAccount(event, account));
         assertTrue(event.acceptedCount() == 2);
         assertTrue(event.getWaitingCount() == 2);
+    }
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("스터디 모임 관리자에 의한 거부")
+    void rejectEnroll() throws Exception {
+
+        Account test1 = accountFactory.createNewAccount("test1");
+        eventService.enrollEvent(test1, event);
+
+        assertTrue(event.acceptedCount() == 1);
+
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, test1);
+
+
+        mockMvc.perform(get(STUDY_TEST_EVENTS + event.getId() + "/enrollments/" + enrollment.getId() + "/reject"))
+                .andExpect(status().is3xxRedirection());
+
+        assertTrue(event.acceptedCount() == 0);
+        assertTrue(event.getWaitingCount() == 1);
+
+    }
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("스터디 모임 관리자에 의한 승인")
+    void acceptEnroll() throws Exception {
+
+        Account test1 = accountFactory.createNewAccount("test1");
+        eventService.enrollEvent(test1, event);
+
+        assertTrue(event.acceptedCount() == 1);
+
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, test1);
+        eventService.rejectEnroll(event, enrollment);
+
+        assertTrue(event.acceptedCount() == 0);
+        assertTrue(event.getWaitingCount() == 1);
+
+        mockMvc.perform(get(getStatusEnrollUrl(enrollment) + "/accept"))
+                .andExpect(status().is3xxRedirection());
+
+        assertTrue(event.acceptedCount() == 1);
+        assertTrue(event.getWaitingCount() == 0);
+
+    }
+
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("스터디 모임 체크인")
+    void checkinEnroll() throws Exception {
+
+        Account test1 = accountFactory.createNewAccount("test1");
+        eventService.enrollEvent(test1, event);
+
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, test1);
+
+        mockMvc.perform(get(getStatusEnrollUrl(enrollment)+ "/checkin"))
+                .andExpect(status().is3xxRedirection());
+
+        assertTrue(enrollment.isAttended());
+
+    }
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("스터디 모임 체크인 취소")
+    void cancelCheckinEnroll() throws Exception {
+
+        Account test1 = accountFactory.createNewAccount("test1");
+        eventService.enrollEvent(test1, event);
+
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, test1);
+        eventService.checkinEnroll(enrollment);
+
+        assertTrue(enrollment.isAttended());
+        assertTrue(enrollment.isAccepted());
+
+        mockMvc.perform(get(getStatusEnrollUrl(enrollment)+ "/cancel-checkin"))
+                .andExpect(status().is3xxRedirection());
+
+        assertTrue(!enrollment.isAttended());
+        assertTrue(enrollment.isAccepted());
+    }
+
+    private String getStatusEnrollUrl(Enrollment enrollment) {
+        return STUDY_TEST_EVENTS + event.getId() + "/enrollments/" + enrollment.getId();
     }
 }
