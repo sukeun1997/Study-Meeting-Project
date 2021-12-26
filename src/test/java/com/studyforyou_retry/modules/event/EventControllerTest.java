@@ -431,7 +431,116 @@ class EventControllerTest {
         assertTrue(enrollment.isAccepted());
     }
 
+    @Test
+    @WithAccount("test")
+    @DisplayName("스터디 모임 정보 수정 폼")
+    void updateEvent() throws Exception {
+
+        assertTrue(study.isManager(new UserAccount(account)));
+
+        mockMvc.perform(get(STUDY_TEST_EVENTS + event.getId() + "/edit"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("study"))
+                .andExpect(model().attributeExists("event"))
+                .andExpect(model().attributeExists("eventForm"))
+                .andExpect(view().name("event/updateform"));
+    }
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("스터디 모임 정보 수정 - 성공")
+    void updateEvent_Success() throws Exception {
+
+        assertTrue(study.isManager(new UserAccount(account)));
+
+        mockMvc.perform(post(STUDY_TEST_EVENTS + event.getId() + "/edit")
+                        .param("title", event.getTitle()+"asd")
+                        .param("limitOfEnrollments", String.valueOf(event.getLimitOfEnrollments()))
+                        .param("startDateTime", event.getStartDateTime().toString())
+                        .param("endEnrollmentDateTime", event.getEndEnrollmentDateTime().toString())
+                        .param("endDateTime", event.getEndDateTime().toString())
+                        .param("description", event.getDescription())
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("스터디 모임 정보 수정 - 성공 ( 인원 늘린 후 선착순 대기인원 자동 확정 )")
+    void updateEvent_Success_limitOfEnrollments() throws Exception {
+
+        assertTrue(study.isManager(new UserAccount(account)));
+
+        for (int i = 0; i < 4; i++) {
+            Account newAccount = accountFactory.createNewAccount("test" + i);
+            eventService.enrollEvent(newAccount,event);
+        }
+
+        assertTrue(event.getWaitingCount() == 2);
+        assertTrue(event.acceptedCount() == 2);
+
+        mockMvc.perform(post(STUDY_TEST_EVENTS + event.getId() + "/edit")
+                        .param("title", event.getTitle()+"asd")
+                        .param("limitOfEnrollments", String.valueOf(event.getLimitOfEnrollments() + 2))
+                        .param("startDateTime", event.getStartDateTime().toString())
+                        .param("endEnrollmentDateTime", event.getEndEnrollmentDateTime().toString())
+                        .param("endDateTime", event.getEndDateTime().toString())
+                        .param("description", event.getDescription())
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection());
+
+        assertTrue(event.getWaitingCount() == 0);
+        assertTrue(event.acceptedCount() == 4);
+    }
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("스터디 모임 정보 수정 - 실패 ( 기존 인원수 보다 줄임 )")
+    void updateEvent_Fail_limitOfEnrollments() throws Exception {
+
+        assertTrue(study.isManager(new UserAccount(account)));
+
+        event.setLimitOfEnrollments(3);
+
+        for (int i = 0; i < 3; i++) {
+            Account newAccount = accountFactory.createNewAccount("test" + i);
+            eventService.enrollEvent(newAccount,event);
+        }
+        assertTrue(event.getWaitingCount() == 0);
+
+        mockMvc.perform(post(STUDY_TEST_EVENTS + event.getId() + "/edit")
+                        .param("title", event.getTitle()+"asd")
+                        .param("limitOfEnrollments", String.valueOf(event.getLimitOfEnrollments()-1))
+                        .param("startDateTime", event.getStartDateTime().toString())
+                        .param("endEnrollmentDateTime", event.getEndEnrollmentDateTime().toString())
+                        .param("endDateTime", event.getEndDateTime().toString())
+                        .param("description", event.getDescription())
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(model().hasErrors())
+                .andExpect(view().name("event/updateform"));
+
+        assertTrue(event.getWaitingCount() == 0);
+        assertTrue(event.getLimitOfEnrollments() == 3);
+    }
+
+    @Test
+    @WithAccount("test")
+    @DisplayName("스터디 모임 삭제")
+    void deleteEvent() throws Exception {
+
+        assertTrue(study.isManager(new UserAccount(account)));
+
+        mockMvc.perform(delete(STUDY_TEST_EVENTS + event.getId())
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection());
+
+        assertTrue(eventRepository.findById(event.getId()).isEmpty());
+    }
+
     private String getStatusEnrollUrl(Enrollment enrollment) {
         return STUDY_TEST_EVENTS + event.getId() + "/enrollments/" + enrollment.getId();
     }
+
+
 }
