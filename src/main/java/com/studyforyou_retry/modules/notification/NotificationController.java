@@ -5,6 +5,7 @@ import com.studyforyou_retry.modules.account.CurrentAccount;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.ArrayList;
@@ -47,6 +48,14 @@ public class NotificationController {
         model.addAttribute("numberOfChecked", notifications.size());
 
         return "notification/list";
+    }
+
+    @DeleteMapping("/notifications")
+    private String deleteReadNotification(@CurrentAccount Account account) {
+
+        notificationService.deleteReadNotification(account);
+
+        return "redirect:/notifications";
     }
 
     private void setAttributeValue(Model model, List<Notification> notifications) {
