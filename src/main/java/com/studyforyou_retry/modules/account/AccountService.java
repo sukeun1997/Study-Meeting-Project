@@ -11,6 +11,7 @@ import com.studyforyou_retry.modules.zones.Zone;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -43,12 +44,12 @@ public class AccountService implements UserDetailsService {
     private final TemplateEngine templateEngine;
     private final AppProperties appProperties;
 
-    public void createNewAccount(SignUpForm signUpForm) {
+    public Account createNewAccount(SignUpForm signUpForm) {
         signUpForm.setPassword(passwordEncoder.encode(signUpForm.getPassword()));
         Account account = modelMapper.map(signUpForm, Account.class);
-        sendConfirmEmail(account);
-        accountRepository.save(account);
+        Account save = accountRepository.save(account);
         login(account);
+        return save;
     }
 
     @Override
@@ -84,13 +85,11 @@ public class AccountService implements UserDetailsService {
         securityContext.setAuthentication(token);
     }
 
-
+    @Async
     public void sendConfirmEmail(Account account) {
         account.GenerateCheckToken();
         log.info("/check-email-token?token={}&email={}", account.getEmailCheckToken(), account.getEmail());
-        //TODO 인증 이메일 보내기
         sendSignUpEmail(account);
-
     }
 
     private void sendSignUpEmail(Account account) {
@@ -134,9 +133,25 @@ public class AccountService implements UserDetailsService {
         accountRepository.save(account);
     }
 
+    @Async
     public void sendLoginEmail(Account byEmail) {
-        //TODO 로그인 이메일 보내기
-        log.info("/logged-in-by-email?email={}&token={}",byEmail.getEmail(), byEmail.getEmailCheckToken());
+        Context context = new Context();
+
+        context.setVariable("nickname", byEmail.getNickname());
+        context.setVariable("message", "스터디 포유 이메일 로그인을 위해 아래 링크를 통해 접속해 주세요");
+        context.setVariable("link", "/logged-in-by-email?token="+byEmail.getEmailCheckToken()+"&email="+byEmail.getEmail());
+        context.setVariable("host",appProperties.getHost());
+        context.setVariable("linkName","스터디 포유 이메일 로그인");
+
+        String process = templateEngine.process("mail/simple-link", context);
+
+
+        EmailMessage message = EmailMessage.builder().to(byEmail.getEmail())
+                .message(process)
+                .subject("스터디 포유 이메일 로그인")
+                .build();
+
+        htmlEmailService.sendEmail(message);
     }
 
     @Transactional(readOnly = true)

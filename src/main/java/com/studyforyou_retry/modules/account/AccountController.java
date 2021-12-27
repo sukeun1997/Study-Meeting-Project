@@ -47,7 +47,8 @@ public class AccountController {
             return ACCOUNT_SIGN_UP;
         }
 
-        accountService.createNewAccount(signUpForm);
+        Account newAccount = accountService.createNewAccount(signUpForm);
+        accountService.sendConfirmEmail(newAccount);
         return "redirect:/";
     }
 

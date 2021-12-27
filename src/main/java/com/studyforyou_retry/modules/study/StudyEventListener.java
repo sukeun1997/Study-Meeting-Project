@@ -13,6 +13,7 @@ import com.studyforyou_retry.modules.notification.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -20,6 +21,7 @@ import org.thymeleaf.context.Context;
 import java.time.LocalDateTime;
 
 @Slf4j
+@Async
 @Component
 @RequiredArgsConstructor
 public class StudyEventListener {
@@ -34,7 +36,7 @@ public class StudyEventListener {
     @EventListener
     public void handleStudyCreatedEvent(StudyCreatedEvent studyCreatedEvent) {
 
-        log.info("start");
+        log.info("study created event");
         Study study = studyRepository.findStudyWithTagsAndZonesById(studyCreatedEvent.getStudy().getId());
         Iterable<Account> iterable = accountRepository.findAll(AccountPredicate.findAccountWithTagsAndZones(study.getTags(), study.getZones()));
 
