@@ -6,6 +6,7 @@ import com.studyforyou_retry.modules.tags.Tag;
 import com.studyforyou_retry.modules.zones.Zone;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ public class StudyService {
 
     private final StudyRepository studyRepository;
     private final ModelMapper modelMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public void createStudy(Account account, StudyForm studyForm) {
         Study study = modelMapper.map(studyForm, Study.class);
@@ -122,7 +124,8 @@ public class StudyService {
     }
 
     public void publishStudy(Study study) {
-        study.publish();
+//        study.publish();
+       eventPublisher.publishEvent(new StudyCreatedEvent(study));
     }
 
     public void closeStudy(Study study) {

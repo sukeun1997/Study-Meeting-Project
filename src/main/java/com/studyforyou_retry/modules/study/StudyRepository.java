@@ -10,7 +10,7 @@ public interface StudyRepository extends JpaRepository<Study,Long> {
     @EntityGraph(attributePaths = {"tags","members","zones","managers"})
     Study findStudyWithAllByPath(String path);
 
-    @EntityGraph(attributePaths = {"managers"})
+    @EntityGraph(attributePaths = {"managers"}, type = EntityGraph.EntityGraphType.FETCH)
     Study findStudyWithManagerByPath(String path);
 
     @EntityGraph(attributePaths = {"managers","tags"})
@@ -24,4 +24,7 @@ public interface StudyRepository extends JpaRepository<Study,Long> {
     boolean existsByTitle(String newTitle);
 
     Study findByPath(String path);
+
+    @EntityGraph(attributePaths = {"tags","zones"})
+    Study findStudyWithTagsAndZonesById(Long id);
 }

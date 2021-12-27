@@ -6,7 +6,8 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity @Getter @Setter
+@Entity
+@Getter @Setter @Builder
 @EqualsAndHashCode(of = "id") @AllArgsConstructor @NoArgsConstructor
 public class Notification {
 

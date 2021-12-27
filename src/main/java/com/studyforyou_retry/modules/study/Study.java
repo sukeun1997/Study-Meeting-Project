@@ -39,16 +39,16 @@ public class Study {
     private String image;
 
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Account> managers = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Account> members = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Tag> tags = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Zone> zones = new HashSet<>();
 
     public void addManagers(Account account) {
