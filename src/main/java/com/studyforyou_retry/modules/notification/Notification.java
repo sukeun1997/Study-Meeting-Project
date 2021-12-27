@@ -24,7 +24,7 @@ public class Notification {
 
     private boolean checked;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Account to;
 
     @Enumerated(EnumType.STRING)

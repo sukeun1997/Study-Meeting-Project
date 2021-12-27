@@ -1,6 +1,7 @@
 package com.studyforyou_retry.modules.notification;
 
 import com.studyforyou_retry.modules.account.Account;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,4 +14,5 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
 
     long countByToAndChecked(Account account, boolean checked);
 
+    List<Notification> findByToAndCheckedOrderByCreatedDateTime(Account account, boolean checked);
 }

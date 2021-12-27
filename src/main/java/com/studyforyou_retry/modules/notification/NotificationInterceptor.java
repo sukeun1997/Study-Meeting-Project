@@ -24,10 +24,7 @@ public class NotificationInterceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new RuntimeException("NotificationInterceptor authentication Null");
-        }
-        if (modelAndView != null && !isRedirect(request, modelAndView) && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserAccount) {
+        if (modelAndView != null && !isRedirect(request, modelAndView) && authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserAccount) {
 
             Account account = ((UserAccount) authentication.getPrincipal()).getAccount();
             boolean checked = notificationRepository.existsByToAndChecked(account, false);
