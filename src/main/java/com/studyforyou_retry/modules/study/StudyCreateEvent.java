@@ -7,6 +7,6 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @RequiredArgsConstructor
-public class StudyCreatedEvent {
+public class StudyCreateEvent {
     private final Study study;
 }

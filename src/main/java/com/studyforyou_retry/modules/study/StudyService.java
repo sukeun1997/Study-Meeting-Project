@@ -51,6 +51,7 @@ public class StudyService {
 
     public void updateDescription(Study study, StudyDescriptionForm studyDescriptionForm) {
         study.updateDescription(studyDescriptionForm);
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디 소개가 변경 되었습니다."));
     }
 
     @Transactional(readOnly = true)
@@ -124,21 +125,24 @@ public class StudyService {
     }
 
     public void publishStudy(Study study) {
-//        study.publish();
-       eventPublisher.publishEvent(new StudyCreatedEvent(study));
+        study.publish();
+        eventPublisher.publishEvent(new StudyCreateEvent(study));
     }
 
     public void closeStudy(Study study) {
         study.close();
+        eventPublisher.publishEvent(new StudyUpdateEvent(study,"스터디가 종료 되었습니다."));
+
     }
 
     public void updatePath(Study study, String newPath) {
         study.updatePath(newPath);
+        eventPublisher.publishEvent(new StudyUpdateEvent(study,"스터디 주소가 변경 되었습니다."));
     }
 
     public void updateTitle(Study study, String newTitle) {
         study.updateTitle(newTitle);
-
+        eventPublisher.publishEvent(new StudyUpdateEvent(study,"스터디 이름이 "+newTitle+" 로 변경 되었습니다."));
     }
 
     public void deleteStudy(Study study) {
@@ -147,10 +151,12 @@ public class StudyService {
 
     public void recruitStart(Study study) {
         study.recruitStart();
+        eventPublisher.publishEvent(new StudyUpdateEvent(study,"스터디 모집이 시작 되었습니다."));
     }
 
     public void recruitStop(Study study) {
         study.recruitStop();
+        eventPublisher.publishEvent(new StudyUpdateEvent(study,"스터디 모집이 종료 되었습니다."));
     }
 
     public boolean canRecruit(Study study) {

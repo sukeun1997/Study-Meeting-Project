@@ -24,7 +24,7 @@ public class NotificationInterceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (modelAndView != null && !isRedirect(request, modelAndView) && authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserAccount) {
+        if (modelAndView != null && !isRedirect(modelAndView) && authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserAccount) {
 
             Account account = ((UserAccount) authentication.getPrincipal()).getAccount();
             boolean checked = notificationRepository.existsByToAndChecked(account, false);
@@ -33,8 +33,8 @@ public class NotificationInterceptor implements HandlerInterceptor {
 
     }
 
-    private boolean isRedirect(HttpServletRequest request, ModelAndView modelAndView) {
-        return request.getRequestURI().startsWith("redirect:") || modelAndView.getView() instanceof RedirectView;
+    private boolean isRedirect(ModelAndView modelAndView) {
+        return modelAndView.getViewName().startsWith("redirect:") || modelAndView.getView() instanceof RedirectView;
     }
 
 }
