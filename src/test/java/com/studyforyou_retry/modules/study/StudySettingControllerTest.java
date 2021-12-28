@@ -1,6 +1,5 @@
 package com.studyforyou_retry.modules.study;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyforyou_retry.infra.WithMockUser;
 import com.studyforyou_retry.modules.account.Account;

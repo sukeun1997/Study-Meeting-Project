@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Transactional(readOnly = true)
-public interface StudyRepository extends JpaRepository<Study,Long> {
+public interface StudyRepository extends JpaRepository<Study,Long> , StudyCustomRepository {
 
     @EntityGraph(attributePaths = {"tags","members","zones","managers"})
     Study findStudyWithAllByPath(String path);
