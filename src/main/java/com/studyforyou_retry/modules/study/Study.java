@@ -26,15 +26,18 @@ public class Study {
     private String path;
     private String shortDescription;
     private String fullDescription;
+
     private boolean useBanner;
     private boolean published;
     private boolean closed;
     private boolean recruiting;
 
 
+    private LocalDateTime publishedDateTime;
     private LocalDateTime closedDateTime;
-
     private LocalDateTime recruitDateTime;
+
+    private int memberCount;
     @Lob
     private String image;
 
@@ -53,6 +56,7 @@ public class Study {
 
     public void addManagers(Account account) {
         managers.add(account);
+        memberCount++;
     }
 
     public boolean isJoinable(UserAccount userAccount) {
@@ -115,6 +119,7 @@ public class Study {
     public void publish() {
         if (canPublish()) {
             published = true;
+            publishedDateTime = LocalDateTime.now();
             closed = false;
         }
     }
@@ -159,12 +164,14 @@ public class Study {
     public void joinStudy(Account account) {
         if (isJoinable(new UserAccount(account))) {
             getMembers().add(account);
+            memberCount++;
         }
     }
 
     public void leaveStudy(Account account) {
         if (canLeave(account)) {
             getMembers().remove(account);
+            memberCount--;
         }
     }
 
