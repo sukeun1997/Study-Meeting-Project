@@ -1,10 +1,12 @@
 package com.studyforyou_retry.modules.study;
 
+import com.studyforyou_retry.modules.account.Account;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Transactional(readOnly = true)
 public interface StudyRepository extends JpaRepository<Study,Long> , StudyCustomRepository {
@@ -34,5 +36,11 @@ public interface StudyRepository extends JpaRepository<Study,Long> , StudyCustom
     Study findStudyWithMembersAndManagersById(Long id);
 
     @EntityGraph(attributePaths = {"tags","zones"})
-    List<Study> findFirst9ByPublishedAndClosedOrderByPublishedDateTimeDesc(boolean published, boolean closed);
+    Set<Study> findFirst9ByPublishedAndClosedOrderByPublishedDateTimeDesc(boolean published, boolean closed);
+
+    @EntityGraph(attributePaths = {"managers"})
+    Set<Study> findFirst10ByManagersContainingOrderByPublishedDateTimeDesc(Account account);
+
+    @EntityGraph(attributePaths = {"members"})
+    Set<Study> findFirst10ByMembersContainingOrderByPublishedDateTimeDesc(Account account);
 }

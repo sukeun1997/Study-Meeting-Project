@@ -1,6 +1,7 @@
 package com.studyforyou_retry.modules.account;
 
 import com.studyforyou_retry.modules.tags.Tag;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,4 +21,6 @@ public interface AccountRepository extends JpaRepository<Account,Long> , Queryds
 
     long countByEmailVerified(boolean verified);
 
+    @EntityGraph(attributePaths = {"zones","tags"})
+    Account findAccountWithTagsAndZonesById(Long id);
 }
