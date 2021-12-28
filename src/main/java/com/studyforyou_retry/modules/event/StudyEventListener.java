@@ -1,4 +1,4 @@
-package com.studyforyou_retry.modules.study;
+package com.studyforyou_retry.modules.event;
 
 import com.studyforyou_retry.infra.config.AppProperties;
 import com.studyforyou_retry.infra.mail.EmailMessage;
@@ -9,6 +9,10 @@ import com.studyforyou_retry.modules.account.setting.AccountPredicate;
 import com.studyforyou_retry.modules.notification.Notification;
 import com.studyforyou_retry.modules.notification.NotificationRepository;
 import com.studyforyou_retry.modules.notification.NotificationType;
+import com.studyforyou_retry.modules.study.Study;
+import com.studyforyou_retry.modules.study.StudyCreateEvent;
+import com.studyforyou_retry.modules.study.StudyRepository;
+import com.studyforyou_retry.modules.study.StudyUpdateEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -43,11 +47,11 @@ public class StudyEventListener {
 
         iterable.forEach(account -> {
             if (account.isStudyCreatedByEmail()) {
-                sendEmail(study, account, "회원님의 관심에 맞는 "+study.getTitle()+" 스터디가 새로 생겼습니다.");
+                sendEmail(study, account, "회원님의 관심에 맞는 " + study.getTitle() + " 스터디가 새로 생겼습니다.", "스터디 포유 - 관심에 맞는 신규 스터디 알림");
             }
 
             if (account.isStudyCreatedByWeb()) {
-                sendNotification(study, account,"회원님의 관심에 맞는 새로운 스터디가 생겼습니다.", NotificationType.NEW_STUDY);
+                sendNotification(study, account, "회원님의 관심에 맞는 새로운 스터디가 생겼습니다.", NotificationType.NEW_STUDY);
             }
         });
     }
@@ -66,16 +70,33 @@ public class StudyEventListener {
 
         accounts.stream().forEach(account -> {
             if (account.isStudyUpdatedByEmail()) {
-                sendEmail(study, account, content);
+                sendEmail(study, account, content, "스터디 포유 - " + study.getTitle() + " 스터디 새로운 알림");
             }
 
             if (account.isStudyUpdatedByWeb()) {
-                sendNotification(study,account,content,NotificationType.JOIN_STUDY);
+                sendNotification(study, account, content, NotificationType.JOIN_STUDY);
             }
         });
     }
 
-    private void sendNotification(Study study, Account account,String content,NotificationType notificationType) {
+    @EventListener
+    public void handleEnrollmentUpdateEvent(EnrollmentUpdateEvent enrollmentUpdateEvent) {
+        log.info("enrollment update event");
+        Account account = enrollmentUpdateEvent.getEnrollment().getAccount();
+        Event event = enrollmentUpdateEvent.getEnrollment().getEvent();
+        String content = enrollmentUpdateEvent.getMessage();
+        Study study = event.getStudy();
+
+        if (account.isStudyEnrollmentResultByEmail()) {
+            sendEmail(study, account, content, "스터디 포유 - " + study.getTitle() + " 스터디 "+event.getTitle()+" 모임 참가 신청 결과");
+        }
+
+        if (account.isStudyEnrollmentResultByWeb()) {
+            sendNotification(study,account,content,NotificationType.EVENT);
+        }
+    }
+
+    private void sendNotification(Study study, Account account, String content, NotificationType notificationType) {
         Notification notification = Notification.builder()
                 .title(study.getTitle() + " 스터디 알림")
                 .message(content)
@@ -89,7 +110,7 @@ public class StudyEventListener {
         notificationRepository.save(notification);
     }
 
-    private void sendEmail(Study study, Account account, String content) {
+    private void sendEmail(Study study, Account account, String content, String subject) {
 
 
         Context context = new Context();
@@ -103,7 +124,7 @@ public class StudyEventListener {
 
         EmailMessage emailMessage = EmailMessage.builder()
                 .to(account.getEmail())
-                .subject("스터디 포유 - " + study.getTitle() + " 새로운 알림")
+                .subject(subject)
                 .message(message)
                 .build();
 

@@ -2,8 +2,10 @@ package com.studyforyou_retry.modules.event;
 
 import com.studyforyou_retry.modules.account.Account;
 import com.studyforyou_retry.modules.study.Study;
+import com.studyforyou_retry.modules.study.StudyUpdateEvent;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,12 +17,13 @@ public class EventService {
     private final EventRepository eventRepository;
     private final ModelMapper modelMapper;
     private final EnrollmentRepository enrollmentRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Event createEvent(Account account, Study study, EventForm eventForm) {
 
         Event event = modelMapper.map(eventForm, Event.class);
         event.createEvent(account, study);
-
+        eventPublisher.publishEvent(new StudyUpdateEvent(study,study.getTitle() + "스터디에 새로운 모임이 생성되었습니다."));
         return eventRepository.save(event);
     }
 
@@ -30,7 +33,9 @@ public class EventService {
             Enrollment enrollment = Enrollment.createEnrollment(account, event);
             event.addEnrollment(enrollment);
             enrollmentRepository.save(enrollment);
+            return;
         }
+        throw new RuntimeException("enrollEvent not activate");
 
     }
 
@@ -42,6 +47,7 @@ public class EventService {
             enrollmentRepository.delete(enrollment);
             event.acceptNextWaitingFCFS();
         }
+        throw new RuntimeException("disenrollEvent not activate");
     }
 
     private boolean isExistsByEventAndAccount(Account account, Event event) {
@@ -52,6 +58,7 @@ public class EventService {
 
         if (event.isRejectable(enrollment)) {
             enrollment.rejectEnroll();
+            eventPublisher.publishEvent(new EnrollmentUpdateEvent(enrollment,event.getTitle() + " 모임 참여 신청이 거절 되었습니다."));
             return;
         }
 
@@ -62,6 +69,7 @@ public class EventService {
     public void acceptEnroll(Event event, Enrollment enrollment) {
         if (event.isAcceptable(enrollment)) {
             enrollment.acceptEnroll();
+            eventPublisher.publishEvent(new EnrollmentUpdateEvent(enrollment,event.getTitle() + " 모임 참여 신청이 수락 되었습니다."));
             return;
         }
         throw new RuntimeException("acceptEnroll 오류");
