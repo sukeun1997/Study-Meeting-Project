@@ -25,13 +25,14 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
         QStudy study = QStudy.study;
         QTag tag = QTag.tag;
         QZone zone = QZone.zone;
+
         QueryResults<Study> results = queryFactory.selectFrom(study)
                 .where(study.published.isTrue().and(study.closed.isFalse())
                         .and(study.title.containsIgnoreCase(keyword)
                                 .or(study.tags.any().title.containsIgnoreCase(keyword))))
                 .leftJoin(study.tags, tag).fetchJoin()
                 .leftJoin(study.zones, zone).fetchJoin()
-                .orderBy(study.publishedDateTime.desc())
+                .orderBy(pageable.getSort().toString().contains("memberCount") ? study.memberCount.desc() : study.publishedDateTime.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();

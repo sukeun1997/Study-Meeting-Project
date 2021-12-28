@@ -34,16 +34,15 @@ public class MainController {
         return "index";
     }
 
-    //    http://localhost/search/study?keyword=gd
     @GetMapping("/search/study")
-    private String searchStudy(String keyword,String sortProperty, Model model,
+    private String searchStudy(String keyword, Model model,
                                @PageableDefault(size = 9, sort = "publishedDateTime", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<Study> studyPage = studyRepository.findByKeyword(keyword, pageable);
 
         model.addAttribute("studyPage", studyPage);
         model.addAttribute("keyword", keyword);
-        model.addAttribute("sortProperty", sortProperty);
+        model.addAttribute("sortProperty", pageable.getSort().toString().contains("publishedDateTime") ? "publishedDateTime" : "memberCount");
         return "list";
     }
 }
